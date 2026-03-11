@@ -2,6 +2,9 @@
   "name": "eco-actions-admin",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "node scripts/generate-firebase-sw.js && next dev --turbopack",
     "build": "node scripts/generate-firebase-sw.js && next build",

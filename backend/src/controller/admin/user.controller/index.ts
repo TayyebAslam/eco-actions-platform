@@ -5,6 +5,8 @@ import { validateRequest } from "../../../validations";
 import {
   createUserSchema,
   updateUserSchema,
+  getUsersQuerySchema,
+  idParamSchema,
 } from "../../../validations/user.validation";
 import { userService, UserError } from "../../../services";
 import { getErrorMessage } from "../../../utils/helperFunctions/errorHelper";
@@ -33,12 +35,13 @@ export const createUser = asyncHandler(async (req: Request, res: Response): Prom
  * Update User
  */
 export const updateUser = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
+  const params = validateRequest(idParamSchema, req.params, res);
+  if (!params) return;
   const data = validateRequest(updateUserSchema, req.body, res);
   if (!data) return;
 
   try {
-    const user = await userService.updateUser(parseInt(id as string), data);
+    const user = await userService.updateUser(params.id, data);
     sendResponse(res, 200, "User updated successfully", true, user);
   } catch (error: unknown) {
     if (error instanceof UserError) {
@@ -54,18 +57,19 @@ export const updateUser = asyncHandler(async (req: Request, res: Response): Prom
  * Get All Users
  */
 export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
-  const { page, limit, search, role, is_active } = req.query;
+  const query = validateRequest(getUsersQuerySchema, req.query, res);
+  if (!query) return;
 
   try {
     const result = await userService.getAllUsers(
       {
-        search: search as string,
-        role: role as string,
-        is_active: is_active === "true" ? true : is_active === "false" ? false : undefined,
+        search: query.search,
+        role: query.role,
+        is_active: query.is_active,
       },
       {
-        page: parseInt(page as string) || 1,
-        limit: parseInt(limit as string) || 10,
+        page: query.page,
+        limit: query.limit,
       }
     );
 
@@ -83,10 +87,11 @@ export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
  * Get User By ID
  */
 export const getUsersById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
+  const params = validateRequest(idParamSchema, req.params, res);
+  if (!params) return;
 
   try {
-    const user = await userService.getUserById(parseInt(id as string));
+    const user = await userService.getUserById(params.id);
     sendResponse(res, 200, "User fetched successfully", true, user);
   } catch (error: unknown) {
     if (error instanceof UserError) {
@@ -102,10 +107,11 @@ export const getUsersById = asyncHandler(async (req: Request, res: Response): Pr
  * Delete User By ID
  */
 export const destroyUserById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
+  const params = validateRequest(idParamSchema, req.params, res);
+  if (!params) return;
 
   try {
-    const user = await userService.deleteUser(parseInt(id as string));
+    const user = await userService.deleteUser(params.id);
     sendResponse(res, 200, "User deleted successfully", true, user);
   } catch (error: unknown) {
     if (error instanceof UserError) {
@@ -121,10 +127,11 @@ export const destroyUserById = asyncHandler(async (req: Request, res: Response):
  * Toggle User Status
  */
 export const toggleUserStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
+  const params = validateRequest(idParamSchema, req.params, res);
+  if (!params) return;
 
   try {
-    const user = await userService.toggleUserStatus(parseInt(id as string));
+    const user = await userService.toggleUserStatus(params.id);
     sendResponse(res, 200, "User status updated successfully", true, user);
   } catch (error: unknown) {
     if (error instanceof UserError) {

@@ -2,17 +2,17 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: eco-actions-db
-    restart: "no"
+    restart: on-failure
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_USER: ${DB_USER:?DB_USER must be set}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
       POSTGRES_DB: ${DB_NAME:-eco_actions_db}
     ports:
       - "5432:5432"
     volumes:
       - eco-actions_pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -20,7 +20,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: eco-actions-redis
-    restart: "no"
+    restart: on-failure
     ports:
       - "6379:6379"
     volumes:
@@ -35,7 +35,7 @@ services:
   eco-actions-backend:
     build: .
     container_name: eco-actions-backend
-    restart: "no"
+    restart: on-failure
     depends_on:
       postgres:
         condition: service_healthy
@@ -44,8 +44,8 @@ services:
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_USER: ${DB_USER:?DB_USER must be set}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
       DB_NAME: ${DB_NAME:-eco_actions_db}
       REDIS_HOST: redis
       REDIS_PORT: 6379

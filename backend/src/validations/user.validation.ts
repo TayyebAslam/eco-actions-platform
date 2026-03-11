@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+export const paginationSchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(10),
+});
+
+export const idParamSchema = z.object({
+  id: z.coerce.number().int().positive({ message: "ID must be a positive integer" }),
+});
+
 export const createUserSchema = z
   .object({
     first_name: z
@@ -64,3 +73,12 @@ export const createUserSchema = z
 
     role: z.string().min(1, "Role is required"),
   });
+
+export const getUsersQuerySchema = paginationSchema.extend({
+  search: z.string().max(255).optional(),
+  role: z.string().max(50).optional(),
+  is_active: z
+    .enum(["true", "false"])
+    .transform((val) => val === "true")
+    .optional(),
+});
