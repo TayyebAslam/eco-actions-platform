@@ -88,7 +88,7 @@ export default function VerifyEmailPage() {
             <div className="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/20">
               <Leaf className="h-8 w-8 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">Thrive</span>
+            <span className="text-2xl font-bold text-white">Eco Actions</span>
           </div>
 
           {/* Middle - Main Content */}
@@ -101,7 +101,7 @@ export default function VerifyEmailPage() {
                 : "Oops! "}
               {!isVerifying && (
                 <span className="text-emerald-200">
-                  {isSuccess ? "Thrive" : "Something Went Wrong"}
+                  {isSuccess ? "Eco Actions" : "Something Went Wrong"}
                 </span>
               )}
             </h1>
@@ -170,7 +170,7 @@ export default function VerifyEmailPage() {
               <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-2.5 rounded-xl shadow-lg shadow-emerald-500/30">
                 <Leaf className="h-7 w-7 text-white" />
               </div>
-              <span className="text-2xl font-bold text-gray-900">Thrive</span>
+              <span className="text-2xl font-bold text-gray-900">Eco Actions</span>
             </div>
             <p className="text-gray-500 text-sm">Sustainability Ecosystem</p>
           </div>
@@ -245,7 +245,7 @@ export default function VerifyEmailPage() {
           </Card>
 
           <p className="mt-8 text-center text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} Thrive. Making the world greener.
+            &copy; {new Date().getFullYear()} Eco Actions. Making the world greener.
           </p>
         </div>
         </div>

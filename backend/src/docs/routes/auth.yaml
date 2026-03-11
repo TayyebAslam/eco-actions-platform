@@ -332,7 +332,7 @@ paths:
                       avatar_url:
                         type: string
                         nullable: true
-                        example: "https://api.thrive.com/uploads/avatar.png"
+                        example: "https://api.eco-actions.com/uploads/avatar.png"
         '401':
           description: Unauthorized or session expired
 

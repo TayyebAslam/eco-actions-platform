@@ -5,7 +5,7 @@ export const TABLE = {
   EMAIL_CHANGE_REQUESTS: "email_change_requests",
   EMAIL_VERIFICATION_TOKENS: "email_verification_tokens",
   USER_SESSIONS: "user_sessions",
-  // Thrive Tables
+  // Eco Actions Tables
   SCHOOLS: "schools",
   SCHOOL_REQUESTS: "school_requests",
   SCHOOL_REJECTION_HISTORY: "school_rejection_history",

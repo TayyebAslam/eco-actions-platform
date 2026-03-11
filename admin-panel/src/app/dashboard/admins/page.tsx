@@ -3,7 +3,7 @@ import { AdminsView } from '@/components/views/dashboard/admins';
 import { PermissionGuard } from '@/components/guards/PermissionGuard';
 
 export const metadata: Metadata = {
-  title: 'Admins - Thrive',
+  title: 'Admins - Eco Actions',
   description: 'Manage admin and sub-admin users',
 };
 

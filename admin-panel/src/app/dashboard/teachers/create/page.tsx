@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { TeachersCreateView } from '@/components/views/dashboard/teachers';
 
 export const metadata: Metadata = {
-  title: 'Create Teacher - Thrive',
+  title: 'Create Teacher - Eco Actions',
   description: 'Add a new teacher account',
 };
 

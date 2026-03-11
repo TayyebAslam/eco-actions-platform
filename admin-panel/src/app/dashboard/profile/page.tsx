@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { ProfileView } from '@/components/views/dashboard/profile';
 
 export const metadata: Metadata = {
-  title: 'Profile Settings - Thrive',
+  title: 'Profile Settings - Eco Actions',
   description: 'Manage your account settings and preferences',
 };
 

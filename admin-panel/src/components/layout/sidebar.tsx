@@ -205,7 +205,7 @@ export function Sidebar({ open, desktopOpen = true, onClose }: SidebarProps) {
               <span className={cn(
                 "text-lg font-bold tracking-tight",
                 isDark ? "text-white" : "text-gray-900"
-              )}>Thrive</span>
+              )}>Eco Actions</span>
               <span className={cn(
                 "text-[10px] font-medium -mt-1",
                 isDark ? "text-emerald-400" : "text-emerald-600"
@@ -433,7 +433,7 @@ export function Sidebar({ open, desktopOpen = true, onClose }: SidebarProps) {
             "text-[10px] text-center font-medium",
             isDark ? "text-slate-600" : "text-gray-400"
           )}>
-            Thrive Admin v1.0
+            Eco Actions Admin v1.0
           </p>
         </div>
       </aside>

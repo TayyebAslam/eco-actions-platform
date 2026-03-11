@@ -1,4 +1,4 @@
-# Thrive - Sustainability Engagement Platform
+# Eco Actions - Sustainability Engagement Platform
 
 A full-stack sustainability engagement ecosystem that gamifies eco-friendly actions for schools and students. Built to connect schools, teachers, and students in tracking real-world environmental impact through a gamified reward system.
 

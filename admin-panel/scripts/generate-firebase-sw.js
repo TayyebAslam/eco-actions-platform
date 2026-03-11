@@ -60,7 +60,7 @@ var messaging = firebase.messaging();
 
 // Handle background push notifications
 messaging.onBackgroundMessage(function (payload) {
-  var notificationTitle = payload.notification?.title || "Thrive";
+  var notificationTitle = payload.notification?.title || "Eco Actions";
   var notificationOptions = {
     body: payload.notification?.body || "",
     icon: "/icons/leaf.svg",

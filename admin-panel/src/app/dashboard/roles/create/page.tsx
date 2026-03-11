@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { RoleFormView } from "@/components/views/dashboard/roles/form/RoleFormView";
 
 export const metadata: Metadata = {
-  title: "Create Role - Thrive",
+  title: "Create Role - Eco Actions",
   description: "Create a new role for system users",
 };
 

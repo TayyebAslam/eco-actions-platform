@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { RolesView } from "@/components/views/dashboard/roles";
 
 export const metadata: Metadata = {
-  title: "Role Settings | Thrive Admin",
+  title: "Role Settings | Eco Actions Admin",
   description: "Manage role display names",
 };
 

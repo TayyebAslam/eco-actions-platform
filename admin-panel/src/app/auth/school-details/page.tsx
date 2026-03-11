@@ -173,13 +173,13 @@ export default function SchoolDetailsPage() {
               <div className="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/20">
                 <Leaf className="h-8 w-8 text-white" />
               </div>
-              <span className="text-2xl font-bold text-white">Thrive</span>
+              <span className="text-2xl font-bold text-white">Eco Actions</span>
             </div>
 
             <div className="flex-1 flex flex-col justify-center max-w-lg">
               <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
                 Welcome to{" "}
-                <span className="text-emerald-200">Thrive!</span>
+                <span className="text-emerald-200">Eco Actions!</span>
               </h1>
               <p className="text-lg text-white/80 mb-10 leading-relaxed">
                 Your school registration is complete. Once approved, you&apos;ll be
@@ -225,7 +225,7 @@ export default function SchoolDetailsPage() {
                 <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-2.5 rounded-xl shadow-lg shadow-emerald-500/30">
                   <Leaf className="h-7 w-7 text-white" />
                 </div>
-                <span className="text-2xl font-bold text-gray-900">Thrive</span>
+                <span className="text-2xl font-bold text-gray-900">Eco Actions</span>
               </div>
             </div>
 
@@ -244,7 +244,7 @@ export default function SchoolDetailsPage() {
               <CardContent className="px-8 pb-8">
                 <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center mb-6">
                   <p className="text-emerald-700 text-sm leading-relaxed">
-                    Thank you for registering your school with Thrive! Your request
+                    Thank you for registering your school with Eco Actions! Your request
                     has been submitted and is now pending approval from our admin team.
                   </p>
                 </div>
@@ -261,7 +261,7 @@ export default function SchoolDetailsPage() {
             </Card>
 
             <p className="mt-6 text-center text-sm text-gray-400">
-              &copy; {new Date().getFullYear()} Thrive. Making the world greener.
+              &copy; {new Date().getFullYear()} Eco Actions. Making the world greener.
             </p>
           </div>
           </div>
@@ -298,7 +298,7 @@ export default function SchoolDetailsPage() {
             <div className="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/20">
               <Leaf className="h-8 w-8 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">Thrive</span>
+            <span className="text-2xl font-bold text-white">Eco Actions</span>
           </div>
 
           <div className="flex-1 flex flex-col justify-center max-w-lg">
@@ -373,7 +373,7 @@ export default function SchoolDetailsPage() {
               <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-2.5 rounded-xl shadow-lg shadow-emerald-500/30">
                 <Leaf className="h-7 w-7 text-white" />
               </div>
-              <span className="text-2xl font-bold text-gray-900">Thrive</span>
+              <span className="text-2xl font-bold text-gray-900">Eco Actions</span>
             </div>
             <p className="text-gray-500 text-sm">Complete Your Registration</p>
           </div>
@@ -518,7 +518,7 @@ export default function SchoolDetailsPage() {
           </Card>
 
           <p className="mt-6 text-center text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} Thrive. Making the world greener.
+            &copy; {new Date().getFullYear()} Eco Actions. Making the world greener.
           </p>
         </div>
         </div>

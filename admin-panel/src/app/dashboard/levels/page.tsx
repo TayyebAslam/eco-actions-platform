@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { LevelsView } from '@/components/views/dashboard/levels';
 
 export const metadata: Metadata = {
-  title: 'Levels - Thrive',
+  title: 'Levels - Eco Actions',
   description: 'Configure XP thresholds for level progression',
 };
 

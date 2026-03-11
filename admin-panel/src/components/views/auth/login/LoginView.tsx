@@ -38,7 +38,7 @@ import { toast } from "sonner";
 type ViewMode = "login" | "forgot-password" | "reset-password" | "signup";
 
 const LOGIN_RATE_LIMIT_STORAGE_KEY =
-  process.env.NEXT_PUBLIC_LOGIN_RATE_LIMIT_KEY || "thrive_login_cooldown";
+  process.env.NEXT_PUBLIC_LOGIN_RATE_LIMIT_KEY || "eco-actions_login_cooldown";
 
 const getRemainingSeconds = (endsAt: number) =>
   Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
@@ -487,7 +487,7 @@ export function LoginView() {
             <div className="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/20">
               <Leaf className="h-8 w-8 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">Thrive</span>
+            <span className="text-2xl font-bold text-white">Eco Actions</span>
           </div>
 
           {/* Middle - Main Content */}
@@ -558,7 +558,7 @@ export function LoginView() {
                 <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-2.5 rounded-xl shadow-lg shadow-emerald-500/30">
                   <Leaf className="h-7 w-7 text-white" />
                 </div>
-                <span className="text-2xl font-bold text-gray-900">Thrive</span>
+                <span className="text-2xl font-bold text-gray-900">Eco Actions</span>
               </div>
               <p className="text-gray-500 text-sm">Sustainability Ecosystem</p>
             </div>
@@ -596,7 +596,7 @@ export function LoginView() {
                         <Input
                           id="email"
                           type="email"
-                          placeholder="admin@thrive.com"
+                          placeholder="admin@eco-actions.com"
                           value={email}
                           onChange={(e) => {
                           setEmail(e.target.value);
@@ -1003,7 +1003,7 @@ export function LoginView() {
                           <Input
                             id="forgot-email"
                             type="email"
-                            placeholder="admin@thrive.com"
+                            placeholder="admin@eco-actions.com"
                             value={email}
                             onChange={(e) => {
                             setEmail(e.target.value);
@@ -1224,7 +1224,7 @@ export function LoginView() {
             </Card>
 
             <p className="mt-8 text-center text-sm text-gray-400">
-              &copy; {new Date().getFullYear()} Thrive. Making the world
+              &copy; {new Date().getFullYear()} Eco Actions. Making the world
               greener.
             </p>
           </div>

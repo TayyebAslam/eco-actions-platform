@@ -284,7 +284,7 @@ export function AdminsEditView() {
               type="email"
               value={formData.email}
               onChange={(e) => handleFieldChange("email", e.target.value)}
-              placeholder="admin@thrive.com"
+              placeholder="admin@eco-actions.com"
               maxLength={255}
               className={errors.email ? "border-destructive focus-visible:ring-destructive" : ""}
             />

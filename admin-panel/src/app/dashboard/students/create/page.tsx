@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { StudentFormView } from "@/components/views/dashboard/students/form/StudentForm";
 
 export const metadata: Metadata = {
-  title: 'Create Student - Thrive',
+  title: 'Create Student - Eco Actions',
   description: 'Add a new student to the system',
 };
 

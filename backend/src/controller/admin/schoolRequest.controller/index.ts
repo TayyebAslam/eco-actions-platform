@@ -100,17 +100,17 @@ export const initiateSchoolRequest = asyncHandler(
 
       // Send verification email
       await transporter.sendMail({
-        from: `"${process.env.APP_NAME || "Thrive"} Team" <${process.env.SMTP_USER}>`,
+        from: `"${process.env.APP_NAME || "Eco Actions"} Team" <${process.env.SMTP_USER}>`,
         to: admin_email,
-        subject: `Verify Your Email - ${process.env.APP_NAME || "Thrive"} School Registration`,
+        subject: `Verify Your Email - ${process.env.APP_NAME || "Eco Actions"} School Registration`,
         html: `
           <html>
             <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
               <div style="max-width: 600px; margin: 50px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                <h2 style="color: #333; text-align: center;">Welcome to ${process.env.APP_NAME || "Thrive"}!</h2>
+                <h2 style="color: #333; text-align: center;">Welcome to ${process.env.APP_NAME || "Eco Actions"}!</h2>
                 <p style="font-size: 16px; color: #555;">Hi ${admin_first_name},</p>
                 <p style="font-size: 16px; color: #555;">
-                  Thank you for registering your school with ${process.env.APP_NAME || "Thrive"}.
+                  Thank you for registering your school with ${process.env.APP_NAME || "Eco Actions"}.
                   Please verify your email address by clicking the button below:
                 </p>
                 <div style="text-align: center; margin: 30px 0;">

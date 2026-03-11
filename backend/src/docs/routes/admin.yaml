@@ -891,11 +891,11 @@ paths:
                       cover_image:
                         type: string
                         nullable: true
-                        example: "https://api.thrive.com/articles/article-12.png"
+                        example: "https://api.eco-actions.com/articles/article-12.png"
                       thumbnail_image:
                         type: string
                         nullable: true
-                        example: "https://api.thrive.com/articles/article-12-thumbnail.png"
+                        example: "https://api.eco-actions.com/articles/article-12-thumbnail.png"
                       points:
                         type: integer
                         example: 10
@@ -991,11 +991,11 @@ paths:
                             cover_image:
                               type: string
                               nullable: true
-                              example: "https://api.thrive.com/articles/article-12.png"
+                              example: "https://api.eco-actions.com/articles/article-12.png"
                             thumbnail_image:
                               type: string
                               nullable: true
-                              example: "https://api.thrive.com/articles/article-12-thumbnail.png"
+                              example: "https://api.eco-actions.com/articles/article-12-thumbnail.png"
                             points:
                               type: integer
                               example: 10
@@ -1103,11 +1103,11 @@ paths:
                       cover_image:
                         type: string
                         nullable: true
-                        example: "https://api.thrive.com/articles/article-12.png"
+                        example: "https://api.eco-actions.com/articles/article-12.png"
                       thumbnail_image:
                         type: string
                         nullable: true
-                        example: "https://api.thrive.com/articles/article-12-thumbnail.png"
+                        example: "https://api.eco-actions.com/articles/article-12-thumbnail.png"
                       points:
                         type: integer
                         example: 10
@@ -1232,11 +1232,11 @@ paths:
                       cover_image:
                         type: string
                         nullable: true
-                        example: "https://api.thrive.com/articles/article-12.png"
+                        example: "https://api.eco-actions.com/articles/article-12.png"
                       thumbnail_image:
                         type: string
                         nullable: true
-                        example: "https://api.thrive.com/articles/article-12-thumbnail.png"
+                        example: "https://api.eco-actions.com/articles/article-12-thumbnail.png"
                       points:
                         type: integer
                         example: 15
@@ -1344,13 +1344,13 @@ paths:
                     properties:
                       url:
                         type: string
-                        example: "https://api.thrive.com/articles/image-123.png"
+                        example: "https://api.eco-actions.com/articles/image-123.png"
                       location:
                         type: string
-                        example: "https://api.thrive.com/articles/image-123.png"
+                        example: "https://api.eco-actions.com/articles/image-123.png"
                       link:
                         type: string
-                        example: "https://api.thrive.com/articles/image-123.png"
+                        example: "https://api.eco-actions.com/articles/image-123.png"
                       filename:
                         type: string
                         example: "image-123.png"
@@ -1402,7 +1402,7 @@ paths:
                     properties:
                       url:
                         type: string
-                        example: "https://api.thrive.com/articles/thumbnail-456.png"
+                        example: "https://api.eco-actions.com/articles/thumbnail-456.png"
                       filename:
                         type: string
                         example: "thumbnail-456.png"

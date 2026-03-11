@@ -3,7 +3,7 @@ import { AdminsCreateView } from '@/components/views/dashboard/admins/create';
 import { PermissionActionGuard } from '@/components/guards/PermissionActionGuard';
 
 export const metadata: Metadata = {
-  title: 'Create Admin - Thrive',
+  title: 'Create Admin - Eco Actions',
   description: 'Add a new admin or sub-admin user',
 };
 

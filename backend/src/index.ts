@@ -243,7 +243,7 @@ app.get("/", async (req: Request, res: Response) => {
   res.send(`
     <head>
       <link rel="icon" type="image/png" href="/assets/favicon.png">
-      <title>${process.env.APP_NAME || "Thrive"}</title>
+      <title>${process.env.APP_NAME || "Eco Actions"}</title>
     </head>
     <body>
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif;">

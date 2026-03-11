@@ -12,8 +12,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Thrive Admin",
-  description: "Thrive Sustainability Engagement Admin Panel",
+  title: "Eco Actions Admin",
+  description: "Eco Actions Platform Admin Panel",
   icons: {
     icon: "/icons/leaf.svg",
   },

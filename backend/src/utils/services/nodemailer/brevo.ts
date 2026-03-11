@@ -15,7 +15,7 @@ export const sendBrevoEmail = async (mailOptions: SendMailOptions) => {
 
     const data = {
         sender: {
-            name: senderName || "Thrive Team",
+            name: senderName || "Eco Actions Team",
             email: senderEmail,
         },
         to: Array.isArray(mailOptions.to)

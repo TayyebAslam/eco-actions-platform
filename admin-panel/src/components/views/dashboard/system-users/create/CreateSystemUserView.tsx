@@ -342,7 +342,7 @@ export function CreateSystemUserView() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleFieldChange("email", e.target.value)}
-                  placeholder="user@thrive.com"
+                  placeholder="user@eco-actions.com"
                   maxLength={255}
                   aria-describedby={errors.email ? "email-error" : "email-hint"}
                   className={errors.email ? "border-destructive focus-visible:ring-destructive" : ""}

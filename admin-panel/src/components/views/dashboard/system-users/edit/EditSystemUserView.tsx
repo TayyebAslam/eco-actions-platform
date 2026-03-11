@@ -453,7 +453,7 @@ export function EditSystemUserView() {
                     setErrors((prev) => ({ ...prev, email: "" }));
                   }
                 }}
-                placeholder="user@thrive.com"
+                placeholder="user@eco-actions.com"
                 maxLength={255}
                 className={errors.email ? "border-destructive focus-visible:ring-destructive" : ""}
               />

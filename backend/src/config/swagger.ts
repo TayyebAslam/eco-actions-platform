@@ -5,11 +5,11 @@ const options: swaggerJsdoc.Options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Thrive API Documentation",
+      title: "Eco Actions API Documentation",
       version: "1.0.0",
-      description: "API documentation for Thrive Sustainability Engagement Ecosystem. \n\n **Note**: Cookie authentication is handled automatically by your browser for `httpOnly` cookies. You do not need to configure it in the 'Authorize' button.",
+      description: "API documentation for Eco Actions Platform Ecosystem. \n\n **Note**: Cookie authentication is handled automatically by your browser for `httpOnly` cookies. You do not need to configure it in the 'Authorize' button.",
       contact: {
-        name: "Thrive Team",
+        name: "Eco Actions Team",
       },
     },
     servers: [
@@ -19,7 +19,7 @@ const options: swaggerJsdoc.Options = {
       },
 
       {
-        url: "https://api.thrive.com/api/v1",
+        url: "https://api.eco-actions.com/api/v1",
         description: "Production Server",
       },
     ],

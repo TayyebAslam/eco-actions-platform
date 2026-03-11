@@ -20,25 +20,25 @@ const nextConfig: NextConfig = {
       // Production/staging domains
       {
         protocol: "https",
-        hostname: "*.thrive.com",
+        hostname: "*.eco-actions.com",
       },
       {
         protocol: "https",
-        hostname: "*.thrive.virtuenetz.pk",
+        hostname: "*.eco-actions.virtuenetz.pk",
       },
       {
         protocol: "http",
-        hostname: "*.thrive.virtuenetz.pk",
+        hostname: "*.eco-actions.virtuenetz.pk",
       },
       {
         protocol: "https",
         hostname: "storage.googleapis.com",
-        pathname: "/thrive-*/**", // If using GCS
+        pathname: "/eco-actions-*/**", // If using GCS
       },
       {
         protocol: "https",
         hostname: "*.amazonaws.com",
-        pathname: "/thrive-*/**", // If using S3
+        pathname: "/eco-actions-*/**", // If using S3
       },
       // Gravatar for user avatars
       {

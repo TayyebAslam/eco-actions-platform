@@ -116,7 +116,7 @@ export function SchoolSetupView() {
             <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-2.5 rounded-xl shadow-lg shadow-emerald-500/30">
               <Leaf className="h-7 w-7 text-white" />
             </div>
-            <span className="text-2xl font-bold">Thrive</span>
+            <span className="text-2xl font-bold">Eco Actions</span>
           </div>
           <p className="text-muted-foreground text-sm">Complete Your Registration</p>
         </div>
@@ -248,7 +248,7 @@ export function SchoolSetupView() {
         </Card>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} Thrive. Making the world greener.
+          &copy; {new Date().getFullYear()} Eco Actions. Making the world greener.
         </p>
       </div>
     </div>

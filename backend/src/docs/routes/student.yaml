@@ -42,7 +42,7 @@ paths:
                           avatar_url:
                             type: string
                             nullable: true
-                            example: "https://api.thrive.com/uploads/avatar.png"
+                            example: "https://api.eco-actions.com/uploads/avatar.png"
                       points:
                         type: object
                         properties:
@@ -111,7 +111,7 @@ paths:
                             category_icon:
                               type: string
                               nullable: true
-                              example: "https://api.thrive.com/uploads/category-icon.png"
+                              example: "https://api.eco-actions.com/uploads/category-icon.png"
                             points:
                               type: integer
                               example: 320
@@ -804,7 +804,7 @@ paths:
                             cover_image:
                               type: string
                               nullable: true
-                              example: "https://api.thrive.com/articles/article-12.png"
+                              example: "https://api.eco-actions.com/articles/article-12.png"
                             points:
                               type: integer
                               example: 10
@@ -925,7 +925,7 @@ paths:
                             cover_image:
                               type: string
                               nullable: true
-                              example: "https://api.thrive.com/articles/article-12.png"
+                              example: "https://api.eco-actions.com/articles/article-12.png"
                             points:
                               type: integer
                               example: 10
@@ -1100,7 +1100,7 @@ paths:
                             cover_image:
                               type: string
                               nullable: true
-                              example: "https://api.thrive.com/articles/article-12.png"
+                              example: "https://api.eco-actions.com/articles/article-12.png"
                             points:
                               type: integer
                               example: 10
@@ -1212,7 +1212,7 @@ paths:
                       cover_image:
                         type: string
                         nullable: true
-                        example: "https://api.thrive.com/articles/article-12.png"
+                        example: "https://api.eco-actions.com/articles/article-12.png"
                       points:
                         type: integer
                         example: 10
@@ -1425,7 +1425,7 @@ paths:
                             cover_image:
                               type: string
                               nullable: true
-                              example: "https://api.thrive.com/articles/article-12.png"
+                              example: "https://api.eco-actions.com/articles/article-12.png"
                             points:
                               type: integer
                               example: 10
@@ -1831,7 +1831,7 @@ paths:
                             example: 5
                           school_name:
                             type: string
-                            example: Thrive University
+                            example: Eco Actions University
                           logo_url:
                             type: string
                             nullable: true

@@ -126,7 +126,7 @@ export function RegisterSchoolView() {
               <div className="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/20">
                 <Leaf className="h-8 w-8 text-white" />
               </div>
-              <span className="text-2xl font-bold text-white">Thrive</span>
+              <span className="text-2xl font-bold text-white">Eco Actions</span>
             </div>
 
             <div className="flex-1 flex flex-col justify-center max-w-lg">
@@ -203,7 +203,7 @@ export function RegisterSchoolView() {
                 <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-2.5 rounded-xl shadow-lg shadow-emerald-500/30">
                   <Leaf className="h-7 w-7 text-white" />
                 </div>
-                <span className="text-2xl font-bold text-gray-900">Thrive</span>
+                <span className="text-2xl font-bold text-gray-900">Eco Actions</span>
               </div>
               <p className="text-gray-500 text-sm">Check Your Email</p>
             </div>
@@ -261,7 +261,7 @@ export function RegisterSchoolView() {
             </Card>
 
             <p className="mt-8 text-center text-sm text-gray-400">
-              &copy; {new Date().getFullYear()} Thrive. Making the world greener.
+              &copy; {new Date().getFullYear()} Eco Actions. Making the world greener.
             </p>
           </div>
           </div>
@@ -295,7 +295,7 @@ export function RegisterSchoolView() {
             <div className="bg-white/20 backdrop-blur-md p-3 rounded-2xl border border-white/20">
               <Leaf className="h-8 w-8 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">Thrive</span>
+            <span className="text-2xl font-bold text-white">Eco Actions</span>
           </div>
 
           {/* Middle - Main Content */}
@@ -305,7 +305,7 @@ export function RegisterSchoolView() {
               <span className="text-emerald-200">Sustainability Revolution</span>
             </h1>
             <p className="text-lg text-white/80 mb-10 leading-relaxed">
-              Register your school with Thrive and start empowering students to
+              Register your school with Eco Actions and start empowering students to
               make a positive environmental impact through gamified learning.
             </p>
 
@@ -377,7 +377,7 @@ export function RegisterSchoolView() {
               <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-2.5 rounded-xl shadow-lg shadow-emerald-500/30">
                 <Leaf className="h-7 w-7 text-white" />
               </div>
-              <span className="text-2xl font-bold text-gray-900">Thrive</span>
+              <span className="text-2xl font-bold text-gray-900">Eco Actions</span>
             </div>
             <p className="text-gray-500 text-sm">Register Your School</p>
           </div>
@@ -549,7 +549,7 @@ export function RegisterSchoolView() {
 
 
           <p className="mt-8 text-center text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} Thrive. Making the world greener.
+            &copy; {new Date().getFullYear()} Eco Actions. Making the world greener.
           </p>
         </div>
         </div>

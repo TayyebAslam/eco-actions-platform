@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { SchoolFormView } from '@/components/views/dashboard/schools/form';
 
 export const metadata: Metadata = {
-  title: 'School Details - Thrive',
+  title: 'School Details - Eco Actions',
   description: 'View school information',
 };
 

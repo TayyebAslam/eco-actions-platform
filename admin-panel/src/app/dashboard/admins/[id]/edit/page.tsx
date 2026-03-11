@@ -3,7 +3,7 @@ import { AdminsEditView } from '@/components/views/dashboard/admins/edit';
 import { PermissionActionGuard } from '@/components/guards/PermissionActionGuard';
 
 export const metadata: Metadata = {
-  title: 'Edit Admin - Thrive',
+  title: 'Edit Admin - Eco Actions',
   description: 'Update admin account information',
 };
 

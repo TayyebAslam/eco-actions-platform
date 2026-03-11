@@ -37,7 +37,7 @@ const getEncryptionKey = (): Buffer => {
   }
 
   // Derive a key using PBKDF2 (more secure than simple SHA256)
-  return crypto.pbkdf2Sync(jwtSecret, "thrive-encryption-salt", 100000, 32, "sha256");
+  return crypto.pbkdf2Sync(jwtSecret, "eco-actions-encryption-salt", 100000, 32, "sha256");
 };
 
 // Cache the key to avoid repeated derivation

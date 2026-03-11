@@ -1,8 +1,8 @@
-# Thrive – Sustainability Engagement Ecosystem 🌿
+# Eco Actions – Sustainability Engagement Ecosystem 🌿
 
-Thrive is a comprehensive digital ecosystem designed to gamify sustainability education. It connects schools, teachers, and students to track real-world eco-friendly actions, turning environmental responsibility into an engaging, rewarding experience.
+Eco Actions is a comprehensive digital ecosystem designed to gamify sustainability education. It connects schools, teachers, and students to track real-world eco-friendly actions, turning environmental responsibility into an engaging, rewarding experience.
 
-![Thrive Logo](public/assets/logo.png)
+![Eco Actions Logo](public/assets/logo.png)
 
 ---
 
@@ -98,8 +98,8 @@ Thrive is a comprehensive digital ecosystem designed to gamify sustainability ed
 
 1.  **Clone the Repository**
     ```bash
-    git clone https://github.com/shahzad-jamil/thrive-backend.git
-    cd thrive-backend
+    git clone https://github.com/shahzad-jamil/eco-actions-backend.git
+    cd eco-actions-backend
     ```
 
 2.  **Install Dependencies**
@@ -116,7 +116,7 @@ Thrive is a comprehensive digital ecosystem designed to gamify sustainability ed
     DB_PORT=5432
     DB_USER=postgres
     DB_PASSWORD=your_password
-    DB_NAME=thrive_db
+    DB_NAME=eco_actions_db
     
     # JWT
     JWT_SECRET=your_jwt_secret_key
@@ -225,11 +225,11 @@ All migrations can be found in [`src/db/migrations/`](src/db/migrations/)
 
 ## 🤝 Contributing
 
-We welcome contributions to make Thrive even better! Here's how you can help:
+We welcome contributions to make Eco Actions even better! Here's how you can help:
 
 1.  **Fork the Repository**
     ```bash
-    git clone https://github.com/YOUR_USERNAME/thrive-backend.git
+    git clone https://github.com/YOUR_USERNAME/eco-actions-backend.git
     ```
 
 2.  **Create a Feature Branch**
@@ -297,7 +297,7 @@ This project is licensed under the **ISC License**.
 
 <div align="center">
 
-**Thrive** — Empowering the next generation of eco-warriors 🌍
+**Eco Actions** — Empowering the next generation of eco-warriors 🌍
 
 *Together, we can make a difference, one eco-action at a time.*
 

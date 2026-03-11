@@ -1,12 +1,12 @@
-# Thrive Admin Panel
+# Eco Actions Admin Panel
 
-Web-based administration dashboard for the Thrive sustainability engagement ecosystem. Built with Next.js 16, React 19, and TypeScript.
+Web-based administration dashboard for the Eco Actions sustainability engagement ecosystem. Built with Next.js 16, React 19, and TypeScript.
 
 ---
 
 ## Overview
 
-The Thrive Admin Panel provides a comprehensive interface for managing schools, users, challenges, and content within the Thrive ecosystem. It supports multi-level user hierarchy with role-based access control.
+The Eco Actions Admin Panel provides a comprehensive interface for managing schools, users, challenges, and content within the Eco Actions ecosystem. It supports multi-level user hierarchy with role-based access control.
 
 ### Key Features
 
@@ -99,7 +99,7 @@ src/
 
 - **Node.js** v18 or higher
 - **npm** or **yarn** or **pnpm**
-- Running instance of [Thrive Backend](../Backend)
+- Running instance of [Eco Actions Backend](../Backend)
 
 ### Installation
 

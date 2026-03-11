@@ -1,7 +1,7 @@
 {
-  "name": "thrive-sustainability-engagement",
+  "name": "eco-actions-platform",
   "version": "1.0.0",
-  "description": "Thrive is a sustainability engagement ecosystem that gamifies eco-friendly actions for schools and students.",
+  "description": "Eco Actions is a sustainability engagement ecosystem that gamifies eco-friendly actions for schools and students.",
   "main": "src/index.ts",
   "dependencies": {
     "axios": "1.13.2",
@@ -85,10 +85,10 @@
     "test:coverage": "jest --coverage",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "redis:cli": "docker exec -it thrive-redis redis-cli",
-    "redis:keys": "docker exec thrive-redis redis-cli KEYS '*'",
-    "redis:clear": "docker exec thrive-redis redis-cli FLUSHALL",
-    "redis:stats": "docker exec thrive-redis redis-cli INFO stats",
+    "redis:cli": "docker exec -it eco-actions-redis redis-cli",
+    "redis:keys": "docker exec eco-actions-redis redis-cli KEYS '*'",
+    "redis:clear": "docker exec eco-actions-redis redis-cli FLUSHALL",
+    "redis:stats": "docker exec eco-actions-redis redis-cli INFO stats",
     "prepare": "husky"
   },
   "keywords": [
