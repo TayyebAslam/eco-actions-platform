@@ -1,0 +1,2087 @@
+paths:
+  /student/dashboard:
+    get:
+      summary: Get student home dashboard
+      description: |
+        Returns dashboard data for the logged-in student including:
+        total points, semester points, current level, XP progress, points needed for next level,
+        streak days, badges count, challenge stats, and points by category.
+      tags: [Student - Dashboard]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Student dashboard fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Student dashboard fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      student:
+                        type: object
+                        properties:
+                          user_id:
+                            type: integer
+                            example: 12
+                          name:
+                            type: string
+                            example: Alex Johnson
+                          avatar_url:
+                            type: string
+                            nullable: true
+                            example: "https://api.thrive.com/uploads/avatar.png"
+                      points:
+                        type: object
+                        properties:
+                          total_points:
+                            type: integer
+                            example: 1250
+                          semester_points:
+                            type: integer
+                            example: 750
+                      level:
+                        type: object
+                        properties:
+                          current_level_id:
+                            type: integer
+                            example: 5
+                          current_level_title:
+                            type: string
+                            example: Eco Warrior
+                          current_xp:
+                            type: integer
+                            example: 750
+                          next_level_id:
+                            type: integer
+                            nullable: true
+                            example: 6
+                          next_level_title:
+                            type: string
+                            nullable: true
+                            example: Eco Champion
+                          next_level_min_xp:
+                            type: integer
+                            nullable: true
+                            example: 1000
+                          xp_needed_for_next_level:
+                            type: integer
+                            example: 250
+                          progress_percent:
+                            type: integer
+                            example: 75
+                      streak_days:
+                        type: integer
+                        example: 1
+                      badges_count:
+                        type: integer
+                        example: 4
+                      challenges:
+                        type: object
+                        properties:
+                          in_progress:
+                            type: integer
+                            example: 3
+                          completed:
+                            type: integer
+                            example: 9
+                      points_by_category:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            category_id:
+                              type: integer
+                              example: 2
+                            category_name:
+                              type: string
+                              example: Recycling
+                            category_icon:
+                              type: string
+                              nullable: true
+                              example: "https://api.thrive.com/uploads/category-icon.png"
+                            points:
+                              type: integer
+                              example: 320
+                      semester_range:
+                        type: object
+                        properties:
+                          start:
+                            type: string
+                            format: date-time
+                            example: "2026-01-01T00:00:00.000Z"
+                          end:
+                            type: string
+                            format: date-time
+                            example: "2026-06-30T23:59:59.999Z"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only students can access this resource
+
+  /student/challenges:
+    get:
+      summary: Get all active challenges
+      description: |
+        Returns all active challenges available for the student.
+        Includes challenges from student's school + global challenges (school_id = null).
+        Only shows challenges that haven't ended yet.
+      tags: [Student - Challenges]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+          example: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+          example: 10
+        - name: challenge_type_id
+          in: query
+          schema:
+            type: integer
+            default: null
+          description: Filter by challenge type ID
+          example: 1
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+            default: null
+          description: Filter by category ID
+          example: 1
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+            enum: [easy, medium, hard]
+            default: null
+          description: Filter by challenge variant name (easy, medium, hard)
+          example: easy
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, completed]
+            default: null
+          description: Filter by student completion status
+          example: active
+        - name: search
+          in: query
+          schema:
+            type: string
+            default: ""
+          description: Search in title and description
+          example: "recycle"
+      responses:
+        '200':
+          description: Challenges fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Challenges fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ChallengeListItem'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '403':
+          description: Only students can access challenges
+
+  /student/challenges/my-challenges:
+    get:
+      summary: Get my joined challenges
+      description: |
+        Returns all challenges that the student has joined.
+        Can filter by status (in_progress, completed, or all).
+      tags: [Student - Challenges]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            example: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            example: 10
+          description: Items per page
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [in_progress, completed, all]
+            default: all
+            example: in_progress
+          description: Filter by progress status
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+            default: null
+            example: 1
+          description: Filter by category ID
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+            enum: [easy, medium, hard]
+            default: null
+            example: easy
+          description: Filter by challenge variant name (easy, medium, hard)
+      responses:
+        '200':
+          description: My challenges fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: My challenges fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MyChallengeItem'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '403':
+          description: Only students can access this
+
+  /student/challenges/joined-challenges:
+    get:
+      summary: Get joined challenges
+      description: |
+        Returns all challenges that the student has joined.
+        Can filter by status (in_progress, completed, or all).
+      tags: [Student - Challenges]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [in_progress, completed, all]
+            default: all
+          description: Filter by progress status
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by category ID
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+            enum: [easy, medium, hard]
+          description: Filter by challenge variant name (easy, medium, hard)
+      responses:
+        '200':
+          description: Joined challenges fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Joined challenges fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MyChallengeItem'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '403':
+          description: Only students can access this
+
+  /student/challenges/{id}:
+    get:
+      summary: Get challenge details
+      description: |
+        Returns detailed information about a specific challenge.
+        Includes all variants and student's progress (if joined).
+      tags: [Student - Challenges]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Challenge ID
+      responses:
+        '200':
+          description: Challenge fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Challenge fetched successfully
+                  data:
+                    $ref: '#/components/schemas/ChallengeDetail'
+        '403':
+          description: You don't have access to this challenge
+        '404':
+          description: Challenge not found
+
+  /student/challenges/{id}/join:
+    post:
+      summary: Join a challenge
+      description: |
+        Join a challenge by selecting a variant.
+        Student can only join one variant per challenge.
+        Creates a progress entry with status "in_progress".
+      tags: [Student - Challenges]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Challenge ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - variant_id
+              properties:
+                variant_id:
+                  type: integer
+                  description: The variant ID to join
+                  example: 1
+      responses:
+        '201':
+          description: Successfully joined the challenge
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Successfully joined the challenge!
+                  data:
+                    type: object
+                    properties:
+                      progress_id:
+                        type: integer
+                        example: 1
+                      challenge_id:
+                        type: integer
+                        example: 5
+                      variant_id:
+                        type: integer
+                        example: 12
+                      variant_name:
+                        type: string
+                        example: "Beginner"
+                      target_count:
+                        type: integer
+                        example: 10
+                      target_unit:
+                        type: string
+                        example: "bottles"
+                      points:
+                        type: integer
+                        example: 50
+                      status:
+                        type: string
+                        example: "in_progress"
+                      current_count:
+                        type: integer
+                        example: 0
+        '400':
+          description: |
+            - Challenge is not active
+            - Challenge has ended
+            - Already joined this challenge
+        '403':
+          description: Only students can join challenges
+        '404':
+          description: Challenge or variant not found
+
+  /student/challenges/{id}/leave:
+    delete:
+      summary: Leave a joined challenge
+      description: |
+        Leave a challenge that the student has joined.
+        Completed challenges cannot be left.
+      tags: [Student - Challenges]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Challenge ID
+      responses:
+        '200':
+          description: Challenge left successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Challenge left successfully
+                  data:
+                    type: object
+                    properties:
+                      progress_id:
+                        type: integer
+                        example: 1
+                      challenge_id:
+                        type: integer
+                        example: 5
+                      variant_id:
+                        type: integer
+                        example: 12
+        '400':
+          description: Completed challenges cannot be left or invalid challenge ID
+        '403':
+          description: Only students can leave challenges
+        '404':
+          description: Challenge not joined
+
+  /student/challenges/progress/{progressId}:
+    put:
+      summary: Update challenge progress
+      description: |
+        Update progress for a joined challenge.
+        When target is reached, challenge is marked as completed and points are awarded.
+        Points are added to student's total_points and xp.
+        Level progression is checked automatically.
+      tags: [Student - Challenges]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: progressId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Progress ID (returned when joining)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                increment:
+                  type: integer
+                  minimum: 1
+                  default: 1
+                  description: Amount to increment the count by
+                  example: 1
+      responses:
+        '200':
+          description: Progress updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Progress updated successfully"
+                  data:
+                    type: object
+                    properties:
+                      progress_id:
+                        type: integer
+                        example: 1
+                      current_count:
+                        type: integer
+                        example: 5
+                      target_count:
+                        type: integer
+                        example: 10
+                      target_unit:
+                        type: string
+                        example: "bottles"
+                      status:
+                        type: string
+                        enum: [in_progress, completed]
+                        example: "in_progress"
+                      completed_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                        example: null
+                      points_awarded:
+                        type: integer
+                        example: 0
+                        description: Points awarded (only > 0 when completed)
+        '400':
+          description: |
+            - Challenge already completed
+            - Challenge is no longer active
+            - Challenge has ended
+        '403':
+          description: You can only update your own progress
+        '404':
+          description: Progress not found
+
+
+  /student/challenges/progress/{progressId}/proof:
+    post:
+      summary: Add proof photo for joined challenge
+      description: |
+        Upload proof photos for a joined challenge.
+        Creates a pending activity entry in the activity feed.
+      tags: [Student - Challenges]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: progressId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Progress ID (returned when joining)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - photos
+              properties:
+                photos:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Proof photos
+                  example: ["photo1.jpg", "photo2.jpg"]
+      responses:
+        '201':
+          description: Challenge proof submitted successfully
+        '400':
+          description: Validation error or missing category
+        '403':
+          description: Only students can add challenge proof
+        '404':
+          description: Progress not found
+
+  /student/articles/{id}/view:
+    post:
+      summary: Record article view
+      description: Records a view for the specified article. Requires student authentication.
+      tags: [Student - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Article ID
+      responses:
+        '200':
+          description: Article view recorded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article view recorded successfully
+                  data:
+                    type: object
+                    properties:
+                      viewed:
+                        type: boolean
+                        example: true
+        '400':
+          description: Invalid article ID
+        '403':
+          description: Only students can view articles
+        '404':
+          description: Article not found
+        '500':
+          description: Internal server error
+
+  /student/articles:
+    get:
+      summary: Get all articles
+      description: Returns a paginated list of articles for the student's school (including global articles).
+      tags: [Student - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+          example: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+          example: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+            default: ""
+          description: Search by article title or content
+          example: "sustainability"
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+            default: null
+          description: Filter by category ID
+          example: 1
+      responses:
+        '200':
+          description: Articles fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Articles fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 12
+                            title:
+                              type: string
+                              example: "Sustainability at School"
+                            content:
+                              type: string
+                              example: "Tips and practices for sustainable living at school."
+                            cover_image:
+                              type: string
+                              nullable: true
+                              example: "https://api.thrive.com/articles/article-12.png"
+                            points:
+                              type: integer
+                              example: 10
+                            category_id:
+                              type: integer
+                              example: 1
+                            category_name:
+                              type: string
+                              nullable: true
+                              example: "Environment"
+                            school_id:
+                              type: integer
+                              nullable: true
+                              example: 1
+                            author_id:
+                              type: integer
+                              example: 5
+                            author_email:
+                              type: string
+                              nullable: true
+                              example: "teacher@school.com"
+                            author_first_name:
+                              type: string
+                              nullable: true
+                              example: "Ayesha"
+                            author_last_name:
+                              type: string
+                              nullable: true
+                              example: "Khan"
+                            school_name:
+                              type: string
+                              nullable: true
+                              example: "Green Valley School"
+                            views_count:
+                              type: integer
+                              example: 12
+                            bookmarks_count:
+                              type: integer
+                              example: 3
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-09T12:00:00Z"
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 25
+                      totalPages:
+                        type: integer
+                        example: 3
+        '403':
+          description: Only students can access articles
+        '500':
+          description: Internal server error
+
+  /student/articles/recommended:
+    get:
+      summary: Get recommended articles
+      description: Returns recommended articles based on categories of articles the student has read. Excludes already read articles.
+      tags: [Student - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+          example: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+          example: 10
+      responses:
+        '200':
+          description: Recommended articles fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Recommended articles fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 12
+                            title:
+                              type: string
+                              example: "Sustainability at School"
+                            content:
+                              type: string
+                              example: "Tips and practices for sustainable living at school."
+                            cover_image:
+                              type: string
+                              nullable: true
+                              example: "https://api.thrive.com/articles/article-12.png"
+                            points:
+                              type: integer
+                              example: 10
+                            category_id:
+                              type: integer
+                              example: 1
+                            category_name:
+                              type: string
+                              nullable: true
+                              example: "Environment"
+                            school_id:
+                              type: integer
+                              nullable: true
+                              example: 1
+                            author_id:
+                              type: integer
+                              example: 5
+                            author_email:
+                              type: string
+                              nullable: true
+                              example: "teacher@school.com"
+                            author_first_name:
+                              type: string
+                              nullable: true
+                              example: "Ayesha"
+                            author_last_name:
+                              type: string
+                              nullable: true
+                              example: "Khan"
+                            school_name:
+                              type: string
+                              nullable: true
+                              example: "Green Valley School"
+                            views_count:
+                              type: integer
+                              example: 12
+                            bookmarks_count:
+                              type: integer
+                              example: 3
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-09T12:00:00Z"
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 25
+                      totalPages:
+                        type: integer
+                        example: 3
+        '403':
+          description: Only students can access articles
+        '500':
+          description: Internal server error
+
+  /student/articles/dashboard:
+    get:
+      summary: Get article dashboard
+      description: Returns article reading stats for the logged-in student.
+      tags: [Student - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Article dashboard fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article dashboard fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      readCount:
+                        type: integer
+                        example: 12
+                      totalArticles:
+                        type: integer
+                        example: 30
+                      pointsEarned:
+                        type: integer
+                        example: 450
+                      currentStreak:
+                        type: integer
+                        example: 5
+                      bestStreak:
+                        type: integer
+                        example: 14
+                      totalPoints:
+                        type: integer
+                        example: 450
+                      progressPercent:
+                        type: integer
+                        example: 40
+        '403':
+          description: Only students can access articles
+        '500':
+          description: Internal server error
+
+  /student/articles/history/reads:
+    get:
+      summary: Get read articles history
+      description: Returns a paginated list of articles the student has read, most recent first.
+      tags: [Student - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+          example: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+          example: 10
+      responses:
+        '200':
+          description: Read articles fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Read articles fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 12
+                            title:
+                              type: string
+                              example: "Sustainability at School"
+                            content:
+                              type: string
+                              example: "Tips and practices for sustainable living at school."
+                            cover_image:
+                              type: string
+                              nullable: true
+                              example: "https://api.thrive.com/articles/article-12.png"
+                            points:
+                              type: integer
+                              example: 10
+                            category_id:
+                              type: integer
+                              example: 1
+                            category_name:
+                              type: string
+                              nullable: true
+                              example: "Environment"
+                            school_id:
+                              type: integer
+                              nullable: true
+                              example: 1
+                            author_id:
+                              type: integer
+                              example: 5
+                            author_email:
+                              type: string
+                              nullable: true
+                              example: "teacher@school.com"
+                            author_first_name:
+                              type: string
+                              nullable: true
+                              example: "Ayesha"
+                            author_last_name:
+                              type: string
+                              nullable: true
+                              example: "Khan"
+                            school_name:
+                              type: string
+                              nullable: true
+                              example: "Green Valley School"
+                            views_count:
+                              type: integer
+                              example: 12
+                            bookmarks_count:
+                              type: integer
+                              example: 3
+                            read_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-10T08:30:00Z"
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-09T12:00:00Z"
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 25
+                      totalPages:
+                        type: integer
+                        example: 3
+        '403':
+          description: Only students can access articles
+        '500':
+          description: Internal server error
+
+  /student/articles/{id}:
+    get:
+      summary: Get article details
+      description: Returns a single article with view and bookmark counts. Requires student authentication.
+      tags: [Student - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Article ID
+      responses:
+        '200':
+          description: Article fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 12
+                      title:
+                        type: string
+                        example: "Sustainability at School"
+                      content:
+                        type: string
+                        example: "Tips and practices for sustainable living at school."
+                      cover_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/article-12.png"
+                      points:
+                        type: integer
+                        example: 10
+                      category_id:
+                        type: integer
+                        example: 1
+                      category_name:
+                        type: string
+                        nullable: true
+                        example: "Environment"
+                      school_id:
+                        type: integer
+                        nullable: true
+                        example: 1
+                      author_id:
+                        type: integer
+                        example: 5
+                      author_email:
+                        type: string
+                        nullable: true
+                        example: "teacher@school.com"
+                      author_first_name:
+                        type: string
+                        nullable: true
+                        example: "Ayesha"
+                      author_last_name:
+                        type: string
+                        nullable: true
+                        example: "Khan"
+                      school_name:
+                        type: string
+                        nullable: true
+                        example: "Green Valley School"
+                      views_count:
+                        type: integer
+                        example: 12
+                      bookmarks_count:
+                        type: integer
+                        example: 3
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2026-02-09T12:00:00Z"
+        '400':
+          description: Invalid article ID
+        '403':
+          description: You don't have access to this article
+        '404':
+          description: Article not found
+        '500':
+          description: Internal server error
+
+  /student/articles/{id}/read:
+    post:
+      summary: Mark article as read
+      description: Marks an article as read and awards points to the student (once).
+      tags: [Student - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Article ID
+      responses:
+        '200':
+          description: Article marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article marked as read. You earned 10 points
+                  data:
+                    type: object
+                    properties:
+                      alreadyRead:
+                        type: boolean
+                        example: false
+                      pointsAwarded:
+                        type: integer
+                        example: 10
+                      article:
+                        type: object
+                        description: Full article object with counts
+        '400':
+          description: Invalid article ID
+        '403':
+          description: Only students can mark articles as read
+        '404':
+          description: Article not found
+        '500':
+          description: Internal server error
+
+  /student/articles/{id}/bookmark:
+    post:
+      summary: Toggle article bookmark
+      description: Adds or removes a bookmark for the specified article. Requires student authentication.
+      tags: [Student - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Article ID
+      responses:
+        '200':
+          description: Article bookmark toggled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article bookmarked successfully
+                  data:
+                    type: object
+                    properties:
+                      bookmarked:
+                        type: boolean
+                        example: true
+        '400':
+          description: Invalid article ID
+        '403':
+          description: Only students can bookmark articles
+        '404':
+          description: Article not found
+        '500':
+          description: Internal server error
+
+  /student/articles/bookmarks:
+    get:
+      summary: Get bookmarked articles
+      description: Returns a paginated list of articles bookmarked by the student.
+      tags: [Student - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+          example: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+          example: 10
+      responses:
+        '200':
+          description: Bookmarked articles fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Bookmarked articles fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 12
+                            title:
+                              type: string
+                              example: "Sustainability at School"
+                            content:
+                              type: string
+                              example: "Tips and practices for sustainable living at school."
+                            cover_image:
+                              type: string
+                              nullable: true
+                              example: "https://api.thrive.com/articles/article-12.png"
+                            points:
+                              type: integer
+                              example: 10
+                            category_id:
+                              type: integer
+                              example: 1
+                            category_name:
+                              type: string
+                              nullable: true
+                              example: "Environment"
+                            school_id:
+                              type: integer
+                              nullable: true
+                              example: 1
+                            author_id:
+                              type: integer
+                              example: 5
+                            author_email:
+                              type: string
+                              nullable: true
+                              example: "teacher@school.com"
+                            author_first_name:
+                              type: string
+                              nullable: true
+                              example: "Ayesha"
+                            author_last_name:
+                              type: string
+                              nullable: true
+                              example: "Khan"
+                            school_name:
+                              type: string
+                              nullable: true
+                              example: "Green Valley School"
+                            views_count:
+                              type: integer
+                              example: 12
+                            bookmarks_count:
+                              type: integer
+                              example: 3
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-09T12:00:00Z"
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 25
+                      totalPages:
+                        type: integer
+                        example: 3
+        '403':
+          description: Only students can access bookmarked articles
+        '500':
+          description: Internal server error
+
+  /student/leaderboard:
+    get:
+      summary: Get student leaderboard
+      description: |
+        Returns a school-scoped leaderboard for students.
+        Ranking is based on `period_points` (descending), then `total_points`, then `xp`.
+        Supports week/month/semester/all-time periods and optional category filtering.
+      tags: [Student - Leaderboard]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: time_period
+          in: query
+          schema:
+            type: string
+            enum: [week, month, semester, all_time]
+            default: semester
+            example: semester
+          description: Leaderboard period
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+            default: null
+            example: 1
+          description: Optional category filter. Omit for all categories.
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            example: 1
+          description: Page number for `others` list (ranks after top 3)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            example: 10
+          description: Items per page for `others` list
+      responses:
+        '200':
+          description: Leaderboard fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Leaderboard fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      period:
+                        type: string
+                        enum: [week, month, semester, all_time]
+                        example: semester
+                      period_range:
+                        nullable: true
+                        type: object
+                        properties:
+                          start:
+                            type: string
+                            format: date-time
+                            example: "2026-01-01T00:00:00.000Z"
+                          end:
+                            type: string
+                            format: date-time
+                            example: "2026-06-30T23:59:59.999Z"
+                      category_id:
+                        nullable: true
+                        type: integer
+                        example: 3
+                      top_three:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user_id:
+                              type: integer
+                              example: 12
+                            name:
+                              type: string
+                              example: Sarah Mitchell
+                            avatar_url:
+                              type: string
+                              nullable: true
+                              example: "http://localhost:5000/public/avatars/sarah.png"
+                            level:
+                              type: integer
+                              example: 12
+                            xp:
+                              type: integer
+                              example: 4800
+                            total_points:
+                              type: integer
+                              example: 4800
+                            period_points:
+                              type: integer
+                              example: 1200
+                            position:
+                              type: integer
+                              example: 1
+                      others:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user_id:
+                              type: integer
+                              example: 45
+                            name:
+                              type: string
+                              example: Marcus Chen
+                            avatar_url:
+                              type: string
+                              nullable: true
+                            level:
+                              type: integer
+                              example: 10
+                            xp:
+                              type: integer
+                              example: 4100
+                            total_points:
+                              type: integer
+                              example: 4100
+                            period_points:
+                              type: integer
+                              example: 900
+                            position:
+                              type: integer
+                              example: 4
+                      me:
+                        nullable: true
+                        type: object
+                        properties:
+                          user_id:
+                            type: integer
+                            example: 45
+                          name:
+                            type: string
+                            example: Marcus Chen
+                          avatar_url:
+                            type: string
+                            nullable: true
+                          level:
+                            type: integer
+                            example: 10
+                          xp:
+                            type: integer
+                            example: 4100
+                          total_points:
+                            type: integer
+                            example: 4100
+                          period_points:
+                            type: integer
+                            example: 900
+                          position:
+                            type: integer
+                            example: 4
+                      pagination:
+                        type: object
+                        properties:
+                          page:
+                            type: integer
+                            example: 1
+                          limit:
+                            type: integer
+                            example: 10
+                          totalCount:
+                            type: integer
+                            example: 27
+                          totalPages:
+                            type: integer
+                            example: 3
+                          hasNextPage:
+                            type: boolean
+                            example: true
+                          hasPrevPage:
+                            type: boolean
+                            example: false
+        '400':
+          description: Invalid `time_period` or `category_id`
+        '403':
+          description: Only students can access this resource
+        '500':
+          description: Internal server error
+
+  /student/leaderboard/schools:
+    get:
+      summary: Get schools leaderboard
+      description: |
+        Returns a platform-wide school leaderboard.
+        Ranking is based on school `period_points` (descending), then `members_count`.
+        Supports week/month/semester/all-time periods and optional category filtering.
+      tags: [Student - Leaderboard]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: time_period
+          in: query
+          schema:
+            type: string
+            enum: [week, month, semester, all_time]
+            default: semester
+          description: Leaderboard period
+          example: semester
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+            default: null
+          description: Optional category filter. Omit for all categories.
+          example: 1
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number for `others` list (ranks after top 3)
+          example: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            description: Items per page for `others` list
+            example: 10
+      responses:
+        '200':
+          description: Schools leaderboard fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Schools leaderboard fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      period:
+                        type: string
+                        enum: [week, month, semester, all_time]
+                        example: semester
+                      period_range:
+                        nullable: true
+                        type: object
+                        properties:
+                          start:
+                            type: string
+                            format: date-time
+                            example: "2026-01-01T00:00:00.000Z"
+                          end:
+                            type: string
+                            format: date-time
+                            example: "2026-06-30T23:59:59.999Z"
+                      category_id:
+                        nullable: true
+                        type: integer
+                        example: 3
+                      top_three:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            school_id:
+                              type: integer
+                              example: 7
+                            school_name:
+                              type: string
+                              example: Green Valley University
+                            logo_url:
+                              type: string
+                              nullable: true
+                              example: "http://localhost:5000/schools/green-valley.png"
+                            level:
+                              type: integer
+                              example: 15
+                            members_count:
+                              type: integer
+                              example: 1240
+                            period_points:
+                              type: integer
+                              example: 125600
+                            position:
+                              type: integer
+                              example: 1
+                            is_my_school:
+                              type: boolean
+                              example: false
+                      others:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            school_id:
+                              type: integer
+                              example: 12
+                            school_name:
+                              type: string
+                              example: Pacific Green Academy
+                            logo_url:
+                              type: string
+                              nullable: true
+                            level:
+                              type: integer
+                              example: 13
+                            members_count:
+                              type: integer
+                              example: 850
+                            period_points:
+                              type: integer
+                              example: 98700
+                            position:
+                              type: integer
+                              example: 4
+                            is_my_school:
+                              type: boolean
+                              example: false
+                      my_school:
+                        nullable: true
+                        type: object
+                        properties:
+                          school_id:
+                            type: integer
+                            example: 5
+                          school_name:
+                            type: string
+                            example: Thrive University
+                          logo_url:
+                            type: string
+                            nullable: true
+                          level:
+                            type: integer
+                            example: 12
+                          members_count:
+                            type: integer
+                            example: 720
+                          period_points:
+                            type: integer
+                            example: 87200
+                          position:
+                            type: integer
+                            example: 5
+                          is_my_school:
+                            type: boolean
+                            example: true
+                      pagination:
+                        type: object
+                        properties:
+                          page:
+                            type: integer
+                            example: 1
+                          limit:
+                            type: integer
+                            example: 10
+                          totalCount:
+                            type: integer
+                            example: 27
+                          totalPages:
+                            type: integer
+                            example: 3
+                          hasNextPage:
+                            type: boolean
+                            example: true
+                          hasPrevPage:
+                            type: boolean
+                            example: false
+        '400':
+          description: Invalid `time_period` or `category_id`
+        '403':
+          description: Only students can access this resource
+        '500':
+          description: Internal server error
+
+
+components:
+  schemas:
+    ChallengeListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Recycle Plastic Bottles"
+        description:
+          type: string
+          example: "Help the environment by recycling plastic bottles"
+        start_date:
+          type: string
+          format: date-time
+          nullable: true
+        end_date:
+          type: string
+          format: date-time
+          nullable: true
+        is_active:
+          type: boolean
+          example: true
+        challenge_type_name:
+          type: string
+          example: "recycling"
+        challenge_type_label:
+          type: string
+          example: "Recycling"
+        category_name:
+          type: string
+          nullable: true
+          example: "Environment"
+        category_icon:
+          type: string
+          nullable: true
+          example: "http://localhost:5000/categories/recycle.png"
+        is_joined:
+          type: boolean
+          example: false
+          description: Whether the student has joined this challenge
+        my_progress:
+          nullable: true
+          $ref: '#/components/schemas/MyProgress'
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChallengeVariant'
+
+    ChallengeDetail:
+      allOf:
+        - $ref: '#/components/schemas/ChallengeListItem'
+        - type: object
+          properties:
+            participant_count:
+              type: integer
+              example: 25
+              description: Total number of students participating
+
+    ChallengeVariant:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        challenge_id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Beginner"
+        description:
+          type: string
+          example: "Recycle 10 bottles"
+        target_count:
+          type: integer
+          example: 10
+        target_unit:
+          type: string
+          example: "bottles"
+        points:
+          type: integer
+          example: 50
+
+    MyProgress:
+      type: object
+      properties:
+        progress_id:
+          type: integer
+          example: 1
+        variant_id:
+          type: integer
+          example: 1
+        variant_name:
+          type: string
+          example: "Beginner"
+        status:
+          type: string
+          enum: [in_progress, completed]
+          example: "in_progress"
+        current_count:
+          type: integer
+          example: 5
+        target_count:
+          type: integer
+          example: 10
+        target_unit:
+          type: string
+          example: "bottles"
+        points:
+          type: integer
+          example: 50
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    MyChallengeItem:
+      type: object
+      properties:
+        progress_id:
+          type: integer
+          example: 1
+        challenge_id:
+          type: integer
+          example: 5
+        challenge_title:
+          type: string
+          example: "Recycle Plastic Bottles"
+        challenge_description:
+          type: string
+          example: "Help the environment by recycling"
+        variant_name:
+          type: string
+          example: "Beginner"
+        variant_description:
+          type: string
+          example: "Recycle 10 bottles"
+        challenge_type_name:
+          type: string
+          example: "recycling"
+        challenge_type_label:
+          type: string
+          example: "Recycling"
+        category_name:
+          type: string
+          nullable: true
+          example: "Environment"
+        category_icon:
+          type: string
+          nullable: true
+        start_date:
+          type: string
+          format: date-time
+          nullable: true
+        end_date:
+          type: string
+          format: date-time
+          nullable: true
+        is_active:
+          type: boolean
+          example: true
+        status:
+          type: string
+          enum: [in_progress, completed]
+          example: "in_progress"
+        current_count:
+          type: integer
+          example: 5
+        target_count:
+          type: integer
+          example: 10
+        target_unit:
+          type: string
+          example: "bottles"
+        points:
+          type: integer
+          example: 50
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        progress_percentage:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 50
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+        totalCount:
+          type: integer
+          example: 25
+        totalPages:
+          type: integer
+          example: 3
+

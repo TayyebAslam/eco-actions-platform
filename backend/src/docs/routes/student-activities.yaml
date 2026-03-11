@@ -1,0 +1,1080 @@
+paths:
+  /student/activities:
+    get:
+      summary: Get my activities
+      description: Retrieves a paginated list of activities submitted by the logged-in student.
+      tags:
+        - Student - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+          example: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+          example: 10
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+            default: null
+          description: Filter activities by category ID
+          example: 1
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+            default: null
+          description: Filter activities by status
+          example: pending
+        - name: search
+          in: query
+          schema:
+            type: string
+            default: ""
+          description: Search by activity title or description
+          example: "planted"
+      responses:
+        '200':
+          description: Activities fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Activities fetched successfully"
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: number
+                              example: 1
+                            title:
+                              type: string
+                              example: "Planted trees in school garden"
+                            description:
+                              type: string
+                              nullable: true
+                              example: "Organized and planted 20 trees with classmates"
+                            photos:
+                              type: array
+                              items:
+                                type: string
+                              example: ["https://example.com/photo1.jpg"]
+                            status:
+                              type: string
+                              example: "pending"
+                            points:
+                              type: number
+                              nullable: true
+                              example: 0
+                            category_id:
+                              type: number
+                              nullable: true
+                              example: 1
+                            category_name:
+                              type: string
+                              nullable: true
+                              example: "Environment"
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-01-30T10:30:00Z"
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 25
+                      totalPages:
+                        type: integer
+                        example: 3
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized"
+        '403':
+          description: Only students can access activities
+        '500':
+          description: Internal server error
+
+    post:
+      summary: Create a new activity (student submission)
+      description: Allows a student to submit a new activity for their school
+      tags:
+        - Student - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - title
+                - category_id
+              properties:
+                title:
+                  type: string
+                  description: Activity title
+                  example: "Planted trees in school garden"
+                description:
+                  type: string
+                  description: Detailed description of the activity
+                  example: "Organized and planted 20 trees with classmates"
+                category_id:
+                  type: integer
+                  description: Category ID for the activity
+                  example: 1
+                photos:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Array of photo files uploaded as proof
+                  example: ["photo1.jpg", "photo2.jpg"]
+      responses:
+        '201':
+          description: Activity created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Activity created successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                        example: 1
+                      title:
+                        type: string
+                        example: "Planted trees in school garden"
+                      description:
+                        type: string
+                        example: "Organized and planted 20 trees with classmates"
+                      photos:
+                        type: array
+                        items:
+                          type: string
+                        example: ["https://example.com/photo1.jpg"]
+                      status:
+                        type: string
+                        example: "pending"
+                      points:
+                        type: number
+                        example: 0
+                      category_id:
+                        type: number
+                        example: 1
+                      category_name:
+                        type: string
+                        example: "Environment"
+                      user_id:
+                        type: number
+                        example: 2
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2026-01-30T10:30:00Z"
+        '400':
+          description: Validation error or invalid category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Validation failed"
+                  data:
+                    type: object
+                    properties:
+                      errors:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            field:
+                              type: string
+                              example: "title"
+                            message:
+                              type: string
+                              example: "Title is required"
+        '401':
+          description: Unauthorized - missing authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Unauthorized - User ID not found"
+        '500':
+          description: Internal server error
+
+  /student/activities/feed:
+    get:
+      summary: Get shared feed activities (school only)
+      description: Retrieves a paginated list of activities shared to the feed for the student's school.
+      tags:
+        - Student - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            example: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            example: 10
+          description: Items per page
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+            default: null
+            example: 1
+          description: Filter activities by category ID
+        - name: search
+          in: query
+          schema:
+            type: string
+            default: ""
+            example: "tree"
+          description: Search by activity title or description
+      responses:
+        '200':
+          description: Feed activities fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Feed activities fetched successfully"
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            feed_id:
+                              type: number
+                              example: 1
+                            feed_created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-05T10:45:00Z"
+                            bio:
+                              type: string
+                              nullable: true
+                              example: "Feeling proud of this today!"
+                            id:
+                              type: number
+                              example: 10
+                            title:
+                              type: string
+                              example: "Planted trees in school garden"
+                            description:
+                              type: string
+                              nullable: true
+                              example: "Organized and planted 20 trees with classmates"
+                            photos:
+                              type: array
+                              items:
+                                type: string
+                              example: ["https://example.com/photo1.jpg"]
+                            status:
+                              type: string
+                              example: "approved"
+                            points:
+                              type: number
+                              nullable: true
+                              example: 50
+                            category_id:
+                              type: number
+                              nullable: true
+                              example: 1
+                            category_name:
+                              type: string
+                              nullable: true
+                              example: "Environment"
+                            likes_count:
+                              type: integer
+                              example: 24
+                            comments_count:
+                              type: integer
+                              example: 5
+                            is_liked:
+                              type: boolean
+                              example: true
+                            is_bookmarked:
+                              type: boolean
+                              example: false
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-05T10:30:00Z"
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 25
+                      totalPages:
+                        type: integer
+                        example: 3
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only students can access activity feed
+        '500':
+          description: Internal server error
+
+  /student/activities/bookmarks:
+    get:
+      summary: Get bookmarked shared feed activities
+      description: Retrieves a paginated list of shared feed activities bookmarked by the logged-in student.
+      tags:
+        - Student - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            example: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            example: 10
+          description: Items per page
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+            default: null
+            example: 1
+          description: Filter activities by category ID
+        - name: search
+          in: query
+          schema:
+            type: string
+            default: ""
+            example: "gardening"
+          description: Search by activity title or description
+      responses:
+        '200':
+          description: Bookmarked activities fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Bookmarked activities fetched successfully"
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            feed_id:
+                              type: number
+                              example: 1
+                            feed_created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-05T10:45:00Z"
+                            bio:
+                              type: string
+                              nullable: true
+                              example: "Feeling proud of this today!"
+                            id:
+                              type: number
+                              example: 10
+                            title:
+                              type: string
+                              example: "Planted trees in school garden"
+                            description:
+                              type: string
+                              nullable: true
+                              example: "Organized and planted 20 trees with classmates"
+                            photos:
+                              type: array
+                              items:
+                                type: string
+                              example: ["https://example.com/photo1.jpg"]
+                            status:
+                              type: string
+                              example: "approved"
+                            points:
+                              type: number
+                              nullable: true
+                              example: 50
+                            category_id:
+                              type: number
+                              nullable: true
+                              example: 1
+                            category_name:
+                              type: string
+                              nullable: true
+                              example: "Environment"
+                            likes_count:
+                              type: integer
+                              example: 24
+                            comments_count:
+                              type: integer
+                              example: 5
+                            is_liked:
+                              type: boolean
+                              example: true
+                            is_bookmarked:
+                              type: boolean
+                              example: true
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-05T10:30:00Z"
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 25
+                      totalPages:
+                        type: integer
+                        example: 3
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only students can access bookmarks
+        '500':
+          description: Internal server error
+  /student/activities/{id}:
+    get:
+      summary: Get activity by ID
+      description: Retrieves a single activity by ID for the logged-in student.
+      tags:
+        - Student - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Activity ID
+      responses:
+        '200':
+          description: Activity fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Activity fetched successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                        example: 1
+                      title:
+                        type: string
+                        example: "Planted trees in school garden"
+                      description:
+                        type: string
+                        nullable: true
+                        example: "Organized and planted 20 trees with classmates"
+                      photos:
+                        type: array
+                        items:
+                          type: string
+                        example: ["https://example.com/photo1.jpg"]
+                      status:
+                        type: string
+                        example: "pending"
+                      points:
+                        type: number
+                        nullable: true
+                        example: 0
+                      category_id:
+                        type: number
+                        nullable: true
+                        example: 1
+                      category_name:
+                        type: string
+                        nullable: true
+                        example: "Environment"
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2026-01-30T10:30:00Z"
+        '400':
+          description: Invalid activity ID
+        '401':
+          description: Unauthorized
+        '403':
+          description: You can only access your own activities
+        '404':
+          description: Activity not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal server error"
+
+  /student/activities/{id}/share:
+    post:
+      summary: Share approved activity to school feed
+      description: Allows a student to share their approved activity to the school feed.
+      tags:
+        - Student - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Activity ID
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                bio:
+                  type: string
+                  nullable: true
+                  example: "Feeling proud of this today!"
+      responses:
+        '201':
+          description: Activity shared to feed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Activity shared to feed successfully"
+                  data:
+                    type: object
+                    properties:
+                      feed:
+                        type: object
+                        properties:
+                          id:
+                            type: number
+                            example: 1
+                          activity_id:
+                            type: number
+                            example: 10
+                          user_id:
+                            type: number
+                            example: 5
+                          school_id:
+                            type: number
+                            example: 2
+                          created_at:
+                            type: string
+                            format: date-time
+                            example: "2026-02-05T10:45:00Z"
+                          bio:
+                            type: string
+                            nullable: true
+                            example: "Feeling proud of this today!"
+                      activity:
+                        type: object
+                        properties:
+                          id:
+                            type: number
+                            example: 10
+                          title:
+                            type: string
+                            example: "Planted trees in school garden"
+                          description:
+                            type: string
+                            nullable: true
+                            example: "Organized and planted 20 trees with classmates"
+                          photos:
+                            type: array
+                            items:
+                              type: string
+                            example: ["https://example.com/photo1.jpg"]
+                          status:
+                            type: string
+                            example: "approved"
+                          points:
+                            type: number
+                            nullable: true
+                            example: 50
+                          category_id:
+                            type: number
+                            nullable: true
+                            example: 1
+                          category_name:
+                            type: string
+                            nullable: true
+                            example: "Environment"
+                          created_at:
+                            type: string
+                            format: date-time
+                            example: "2026-02-05T10:30:00Z"
+        '400':
+          description: Invalid activity ID or activity already shared
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only students can share activities
+        '404':
+          description: Activity not found
+        '500':
+          description: Internal server error
+
+  /student/activities/{id}/like:
+    post:
+      summary: Toggle like on a shared feed activity
+      description: Toggles like/unlike for a shared activity in the student's school feed.
+      tags:
+        - Student - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Activity ID
+      responses:
+        '200':
+          description: Activity liked or unliked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Activity liked successfully"
+                  data:
+                    type: object
+                    properties:
+                      liked:
+                        type: boolean
+                        example: true
+                      likes_count:
+                        type: integer
+                        example: 25
+        '400':
+          description: Invalid activity ID
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only students can like activities
+        '404':
+          description: Activity not available in feed
+        '500':
+          description: Internal server error
+
+  /student/activities/{id}/comments:
+    post:
+      summary: Add comment to shared feed activity
+      description: Allows a student to comment on a shared activity in their school feed.
+      tags:
+        - Student - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Activity ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  example: "Great work! Proud of you."
+      responses:
+        '201':
+          description: Comment added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Comment added successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                        example: 1
+                      activity_id:
+                        type: number
+                        example: 10
+                      user_id:
+                        type: number
+                        example: 7
+                      content:
+                        type: string
+                        example: "Great work! Proud of you."
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2026-02-05T11:00:00Z"
+        '400':
+          description: Invalid activity ID or missing content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only students can comment on activities
+        '404':
+          description: Activity not available in feed
+        '500':
+          description: Internal server error
+    get:
+      summary: Get comments for shared feed activity
+      description: Retrieves comments for a shared activity in the student's school feed.
+      tags:
+        - Student - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Activity ID
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            example: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            example: 10
+          description: Items per page
+      responses:
+        '200':
+          description: Comments fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Comments fetched successfully"
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: number
+                              example: 1
+                            activity_id:
+                              type: number
+                              example: 10
+                            user_id:
+                              type: number
+                              example: 7
+                            content:
+                              type: string
+                              example: "Great work! Proud of you."
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-05T11:00:00Z"
+                            first_name:
+                              type: string
+                              nullable: true
+                              example: "Sarah"
+                            last_name:
+                              type: string
+                              nullable: true
+                              example: "Mitchell"
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 5
+                      totalPages:
+                        type: integer
+                        example: 1
+        '400':
+          description: Invalid activity ID
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only students can access comments
+        '404':
+          description: Activity not available in feed
+        '500':
+          description: Internal server error
+
+  /student/activities/{id}/bookmark:
+    post:
+      summary: Toggle bookmark on a shared feed activity
+      description: Toggles bookmark/unbookmark for a shared activity in the student's school feed.
+      tags:
+        - Student - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Activity ID
+      responses:
+        '200':
+          description: Activity bookmarked or unbookmarked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Activity bookmarked successfully"
+                  data:
+                    type: object
+                    properties:
+                      bookmarked:
+                        type: boolean
+                        example: true
+        '400':
+          description: Invalid activity ID
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only students can bookmark activities
+        '404':
+          description: Activity not available in feed
+        '500':
+          description: Internal server error
+
+  /student/activities/{id}/report:
+    post:
+      summary: Report a shared feed activity
+      description: Allows a student to report an activity in the school feed.
+      tags:
+        - Student - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Activity ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  enum:
+                    - Spam or misleading
+                    - Inappropriate content
+                    - Harassment or bullying
+                    - False information
+                  example: "Inappropriate content"
+                description:
+                  type: string
+                  maxLength: 1000
+                  example: "This post contains content not suitable for students."
+      responses:
+        '201':
+          description: Activity reported successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Activity reported successfully"
+                  data:
+                    type: object
+                    properties:
+                      report_id:
+                        type: integer
+                        example: 5
+                      activity_id:
+                        type: integer
+                        example: 32
+                      reason:
+                        type: string
+                        example: "Inappropriate content"
+        '400':
+          description: Invalid input or already reported/self-report
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only students can report activities
+        '404':
+          description: Activity not available in feed
+        '500':
+          description: Internal server error

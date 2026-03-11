@@ -1,0 +1,341 @@
+paths:
+  /auth/login-user:
+    post:
+      summary: Login a user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+                social_id:
+                  type: string
+                  nullable: true
+                  example: ''
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid credentials
+        '403':
+          description: Account inactive
+  /auth/google-login:
+    post:
+      summary: Login with Google
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - id_token
+              properties:
+                id_token:
+                  type: string
+                  description: Google ID token from Google Sign-In client
+      responses:
+        '200':
+          description: Google login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid Google token
+        '403':
+          description: Google login not allowed for this account
+  /auth/login-admin:
+    post:
+      summary: Login as Admin
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: admin@example.com
+                password:
+                  type: string
+                  example: password123
+      responses:
+        '200':
+          description: Admin login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Login successful
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '403':
+          description: Unauthorized
+  /auth/logout:
+    post:
+      summary: Logout user (clear cookie)
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Logged out successfully
+  /auth/forget-password:
+    post:
+      summary: Request a password reset OTP
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+      responses:
+        '200':
+          description: OTP sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: OTP sent to your email
+        '404':
+          description: User not found
+  /auth/reset-password:
+    put:
+      summary: Reset password using OTP
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - confirmPassword
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: newpassword123
+                confirmPassword:
+                  type: string
+                  example: newpassword123
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Password reset successful
+  /auth/change-password:
+    put:
+      summary: Change password (Authenticated)
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - password
+                - confirmPassword
+              properties:
+                currentPassword:
+                  type: string
+                  example: oldpassword123
+                password:
+                  type: string
+                  example: newpassword123
+                confirmPassword:
+                  type: string
+                  example: newpassword123
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Password changed successfully
+        '400':
+          description: Invalid current password
+  /auth/delete-account:
+    delete:
+      summary: Delete user account
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Account deleted successfully
+
+
+
+
+
+  /auth/check-session:
+    get:
+      summary: Check current session
+      description: Validates access token/cookie session and returns current user data.
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Session is valid
+
+
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Session is valid
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 2
+                      email:
+                        type: string
+                        example: student@example.com
+                      first_name:
+                        type: string
+                        nullable: true
+                        example: Ahmad
+                      last_name:
+                        type: string
+                        nullable: true
+                        example: Raza
+                      role:
+                        type: string
+                        example: student
+                      is_active:
+                        type: boolean
+                        example: true
+                      school_id:
+                        type: integer
+                        nullable: true
+                        example: 1
+                      avatar_url:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/uploads/avatar.png"
+        '401':
+          description: Unauthorized or session expired
+
+
+
+

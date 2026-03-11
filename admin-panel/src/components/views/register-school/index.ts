@@ -1,0 +1,1 @@
+export { RegisterSchoolView } from './RegisterSchoolView';

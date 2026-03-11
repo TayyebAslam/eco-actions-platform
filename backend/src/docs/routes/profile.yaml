@@ -1,0 +1,218 @@
+paths:
+  /profile:
+    get:
+      summary: Get current user profile
+      tags: [Profile]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        200:
+          description: User profile data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Profile fetched successfully
+                  data:
+                    $ref: '#/components/schemas/User'
+    put:
+      summary: Update user profile
+      tags: [Profile]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: John
+                  nullable: true
+                last_name:
+                  type: string
+                  example: Doe
+                  nullable: true
+                bio:
+                  type: string
+                  example: I love reading and learning
+                  nullable: true
+                profile_image:
+                  type: string
+                  format: binary
+                  nullable: true
+      responses:
+        200:
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Profile updated successfully
+                  data:
+                    $ref: '#/components/schemas/User'
+  /profile/request-email-change:
+    post:
+      summary: Request email change - sends OTP to current email
+      description: Initiates the email change process by sending an OTP to the user's current email address for verification. The user must be authenticated.
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - new_email
+              properties:
+                new_email:
+                  type: string
+                  format: email
+                  description: The new email address the user wants to change to
+                  example: newemail@example.com
+      responses:
+        '200':
+          description: OTP sent to current email successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: OTP sent to your current email for verification
+        '400':
+          description: Validation error or email already in use
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Email already in use
+        '401':
+          description: Unauthorized - no valid token
+        '500':
+          description: Failed to send OTP email
+  /profile/confirm-email-change:
+    put:
+      summary: Confirm email change with OTP
+      description: Completes the email change process by verifying the OTP sent to the current email. Upon successful verification, the user's email is updated to the new email address. The user remains logged in after the change.
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - new_email
+                - otp
+              properties:
+                new_email:
+                  type: string
+                  format: email
+                  description: The new email address (must match the one from request-email-change)
+                  example: newemail@example.com
+                otp:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+                  pattern: ^\d{6}$
+                  description: 6-digit OTP received on current email
+                  example: '123456'
+      responses:
+        '200':
+          description: Email changed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Email changed successfully
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          email:
+                            type: string
+                            example: newemail@example.com
+                          role:
+                            type: string
+                            example: student
+        '400':
+          description: Invalid or expired OTP, or email already in use
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Invalid or expired OTP
+        '401':
+          description: Unauthorized - no valid token
+        '500':
+          description: Failed to change email

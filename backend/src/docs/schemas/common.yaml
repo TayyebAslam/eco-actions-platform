@@ -1,0 +1,46 @@
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The user ID
+        email:
+          type: string
+          format: email
+          description: The user email
+        role:
+          type: string
+          description: The user role (e.g., student, teacher)
+        is_active:
+          type: boolean
+          description: Is the user account active
+        created_at:
+          type: string
+          format: date-time
+    
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+            user:
+              $ref: '#/components/schemas/User'
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Error description

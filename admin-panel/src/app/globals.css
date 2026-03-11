@@ -1,0 +1,488 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --destructive-muted: 0 86% 97%;
+    --destructive-strong: 0 72% 44%;
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: 355.7 100% 97.3%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 48 96% 89%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 142.1 76.2% 36.3%;
+    --radius: 0.5rem;
+    
+    /* Enhanced colors */
+    --sidebar-bg: 222.2 47.4% 11.2%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-muted: 215 20.2% 65.1%;
+    --sidebar-accent: 142.1 70.6% 45.3%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 142.1 70.6% 45.3%;
+    --primary-foreground: 144.9 80.4% 10%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --destructive-muted: 0 60% 18%;
+    --destructive-strong: 0 90% 76%;
+    --success: 142.1 70.6% 45.3%;
+    --success-foreground: 144.9 80.4% 10%;
+    --warning: 48 96% 89%;
+    --warning-foreground: 38 92% 50%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 142.1 76.2% 36.3%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html,
+  body {
+    @apply bg-background text-foreground;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  body {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  /* Theme Transition Overlay */
+  .theme-transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .theme-transition-overlay.transitioning {
+    animation: theme-reveal 400ms ease-out forwards;
+  }
+
+  @keyframes theme-reveal {
+    from {
+      clip-path: circle(0% at 10rem calc(100% - 5rem));
+    }
+    to {
+      clip-path: circle(150% at 10rem calc(100% - 5rem));
+    }
+  }
+
+  /* Hide number input spinner arrows */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox number input spinners */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+}
+
+/* ========================================
+   ANIMATION KEYFRAMES
+   ======================================== */
+
+/* Floating animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+/* Fade and slide animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Scale animations */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* ========================================
+   ANIMATION UTILITIES
+   ======================================== */
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 5s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out;
+}
+
+.animate-fade-in-down {
+  animation: fade-in-down 0.5s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.4s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.4s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out;
+}
+
+.article-content {
+  overflow-wrap: anywhere;
+}
+
+.article-content p::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.article-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+
+.gradient-mesh {
+  background: 
+    radial-gradient(at 40% 20%, hsla(142, 76%, 36%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsla(189, 75%, 50%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsla(142, 76%, 36%, 0.08) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, hsla(340, 65%, 50%, 0.05) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(142, 76%, 36%, 0.1) 0px, transparent 50%);
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+
+/* Default thin scrollbar for all elements */
+/* Note: scrollbar-width and scrollbar-color are modern CSS properties.
+   Fallback styling is provided via ::-webkit-scrollbar pseudo-elements below */
+.scrollbar-thin {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: hsl(var(--muted)) transparent; /* Firefox */
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Dark scrollbar for sidebar */
+.scrollbar-dark::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.scrollbar-dark::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Main content area scrollbar - premium style */
+main::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+main::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+main::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.2);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+main::-webkit-scrollbar-thumb:hover {
+  background: hsl(142 76% 36% / 0.5);
+  background-clip: padding-box;
+}
+
+main::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Dark mode main scrollbar */
+.dark main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.dark main::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.4);
+  background-clip: padding-box;
+}
+
+.icon-container {
+  @apply flex items-center justify-center rounded-xl p-2.5 transition-all duration-200;
+}
+
+/* ========================================
+   SONNER TOAST STYLING
+   ======================================== */
+
+/* Toast container styling */
+[data-sonner-toast] {
+  padding-right: 48px !important;
+}
+
+/* Close button base styling */
+[data-sonner-toast] [data-close-button] {
+  position: absolute !important;
+  top: 50% !important;
+  right: 12px !important;
+  left: auto !important;
+  transform: translateY(-50%) !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 6px !important;
+  background: rgba(0, 0, 0, 0.08) !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  opacity: 0.6 !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  opacity: 1 !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-50%) scale(1.05) !important;
+}
+
+[data-sonner-toast] [data-close-button] svg {
+  width: 14px !important;
+  height: 14px !important;
+  stroke-width: 2.5 !important;
+}
+
+/* Toast type specific styling */
+[data-sonner-toast][data-type="success"] [data-close-button] {
+  color: #166534 !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-close-button]:hover {
+  background: rgba(22, 101, 52, 0.15) !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-close-button] {
+  color: #991b1b !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-close-button]:hover {
+  background: rgba(153, 27, 27, 0.15) !important;
+}
+
+[data-sonner-toast][data-type="info"] [data-close-button] {
+  color: #1e40af !important;
+}
+
+[data-sonner-toast][data-type="info"] [data-close-button]:hover {
+  background: rgba(30, 64, 175, 0.15) !important;
+}
+
+[data-sonner-toast][data-type="warning"] [data-close-button] {
+  color: #92400e !important;
+}
+
+[data-sonner-toast][data-type="warning"] [data-close-button]:hover {
+  background: rgba(146, 64, 14, 0.15) !important;
+}
+
+/* ========================================
+   LOGIN PAGE BACKGROUND PATTERN
+   ======================================== */
+.login-background-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ========================================
+   LEXICAL EDITOR IMAGE STYLES
+   ======================================== */
+.image-wrapper {
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+}
+
+.image-wrapper img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.image-wrapper:hover {
+  outline-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Clear floats after images */
+.editor-input::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Prevent text selection during resize */
+.image-wrapper.resizing {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+/* Smooth transitions for resize handles */
+.image-wrapper [class*="cursor-"] {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  pointer-events: auto;
+}
+
+.image-wrapper [class*="cursor-"]:active {
+  transform: scale(1.2) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.image-wrapper [class*="cursor-"]:hover {
+  transform: scale(1.1);
+}

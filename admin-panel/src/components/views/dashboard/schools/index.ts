@@ -1,0 +1,1 @@
+export { SchoolsView } from './SchoolsView';

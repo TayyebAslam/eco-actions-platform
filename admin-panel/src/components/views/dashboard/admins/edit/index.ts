@@ -1,0 +1,1 @@
+export { AdminsEditView } from './AdminsEditView';

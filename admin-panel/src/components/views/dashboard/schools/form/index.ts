@@ -1,0 +1,1 @@
+export { SchoolFormView } from "./SchoolFormView";

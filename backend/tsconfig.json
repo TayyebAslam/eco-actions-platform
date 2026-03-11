@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "target": "ES6",
+      "module": "CommonJS",
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "strict": true,
+      "esModuleInterop": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "forceConsistentCasingInFileNames": true,
+      "noUncheckedIndexedAccess": true
+    },
+    "exclude": ["knexfile.ts", "jest.config.ts", "src/**/__tests__/**", "tests/**", "babel.config.js", "tsconfig.test.json"]
+}

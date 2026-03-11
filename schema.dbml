@@ -1,0 +1,271 @@
+// Thrive – Sustainability Engagement Ecosystem
+// Database Schema (Simplified & Optimized)
+
+// 1. AUTH & USERS
+Table users {
+  id integer [primary key, increment]
+  email varchar [unique, not null]
+  password_hash varchar
+  google_id varchar
+  apple_id varchar
+  role varchar [not null, note: "super_admin, school_admin, sub_admin, teacher, student"]
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+}
+
+// 2. SCHOOL STRUCTURE
+Table schools {
+  id integer [primary key, increment]
+  name varchar [not null]
+  slug varchar [unique] // e.g. greenwood
+  logo_url varchar
+  address text
+  subscription_status varchar [default: 'active']
+  created_at timestamp
+}
+
+Table classes {
+  id integer [primary key, increment]
+  school_id integer [not null]
+  name varchar [not null] // "Grade 10"
+}
+
+Table sections {
+  id integer [primary key, increment]
+  class_id integer [not null]
+  name varchar [not null] // "Section A"
+}
+
+// 3. PROFILES (Separated for clarity)
+Table students {
+  user_id integer [primary key]
+  school_id integer [not null]
+  section_id integer [not null]
+  
+  first_name varchar
+  last_name varchar
+  avatar_url varchar
+  bio text
+  
+  // Gamification Stats
+  level integer [default: 1]
+  xp integer [default: 0]
+  total_points integer [default: 0]
+  streak_days integer [default: 0]
+}
+
+Table staff {
+  user_id integer [primary key] // Links to users.id
+  school_id integer [not null]
+  first_name varchar
+  last_name varchar
+  job_title varchar // "Principal", "Teacher"
+}
+
+Table teacher_sections {
+  id integer [primary key, increment]
+  teacher_id integer // User ID of the teacher
+  section_id integer // The class section they manage
+}
+
+// 4. PERMISSIONS (For Sub-Admins only)
+Table modules {
+  id integer [primary key, increment]
+  name varchar // "Manage Students", "Create Challenges"
+  key varchar [unique] // "students", "challenges"
+  scope varchar [not null, note: "global, school"] // "global" for Super Admin features, "school" for School Admin features
+}
+
+Table permissions {
+  id integer [primary key, increment]
+  user_id integer // Can be Sub-Admin, or potentially others
+  module_id integer
+  
+  can_create boolean [default: false]
+  can_read boolean [default: true]
+  can_edit boolean [default: false]
+  can_delete boolean [default: false]
+}
+
+// 5. ACTIVITY FEED
+Table categories {
+  id integer [primary key, increment]
+  name varchar // "Waste", "Water"
+  icon_url varchar
+  color varchar
+}
+
+Table activities {
+  id integer [primary key, increment]
+  user_id integer // Student
+  school_id integer
+  category_id integer
+  
+  title varchar
+  description text
+  photos json // ['url1', 'url2']
+  status varchar [default: 'pending'] // pending, approved, rejected
+  
+  points integer [default: 0]
+  created_at timestamp
+}
+
+Table likes {
+  id integer [primary key, increment]
+  activity_id integer
+  user_id integer
+  created_at timestamp
+}
+
+Table comments {
+  id integer [primary key, increment]
+  activity_id integer
+  user_id integer
+  content text
+  created_at timestamp
+}
+
+// 6. GAMIFICATION
+Table levels {
+  id integer [primary key]
+  title varchar // "Eco Rookie"
+  min_xp integer
+}
+
+Table badges {
+  id integer [primary key, increment]
+  name varchar
+  icon_url varchar
+  criteria varchar // "streak_7_days"
+}
+
+Table student_badges {
+  id integer [primary key, increment]
+  user_id integer
+  badge_id integer
+  earned_at timestamp
+}
+
+// The Ledger (Log of all point changes)
+Table points_log {
+  id integer [primary key, increment]
+  user_id integer
+  amount integer // +10, +50
+  reason varchar // "Activity Approved", "Challenge Complete"
+  created_at timestamp
+}
+
+// 7. CHALLENGES & LEARNING
+Table challenges {
+  id integer [primary key, increment]
+  school_id integer [null, note: "Null if Global"]
+  title varchar
+  description text
+  start_date timestamp
+  end_date timestamp
+  is_active boolean
+}
+
+// NEW: Difficulty Variants for a Challenge
+Table challenge_variants {
+  id integer [primary key, increment]
+  challenge_id integer
+  name varchar // "Easy", "Hard", "Eco-Warrior"
+  description varchar // "Walk 5km", "Walk 20km"
+  
+  target_count integer // 5, 20
+  target_unit varchar // "km", "bottles", "days"
+  
+  points integer // Reward points: 100, 500
+}
+
+Table challenge_progress {
+  id integer [primary key, increment]
+  user_id integer
+  challenge_variant_id integer // User joins a specific variant
+  
+  status varchar // "joined", "completed"
+  current_count integer // How much they have done so far
+  completed_at timestamp
+}
+
+Table articles {
+  id integer [primary key, increment]
+  school_id integer [null] // Custom school content
+  author_id integer // Who wrote it
+  
+  title varchar
+  content text
+  cover_image varchar
+  points integer [default: 10]
+}
+
+Table article_views {
+  id integer [primary key, increment]
+  user_id integer
+  article_id integer
+  viewed_at timestamp
+}
+
+Table article_bookmarks {
+  id integer [primary key, increment]
+  user_id integer
+  article_id integer
+  created_at timestamp [default: `now()`]
+}
+
+Table activity_bookmarks {
+  id integer [primary key, increment]
+  user_id integer
+  activity_id integer
+  created_at timestamp [default: `now()`]
+}
+
+// ==========================================
+// RELATIONSHIPS
+// ==========================================
+
+Ref: classes.school_id > schools.id
+Ref: sections.class_id > classes.id
+
+Ref: students.user_id - users.id
+Ref: students.school_id > schools.id
+Ref: students.section_id > sections.id
+
+Ref: staff.user_id - users.id
+Ref: staff.school_id > schools.id
+
+Ref: teacher_sections.teacher_id > users.id
+Ref: teacher_sections.section_id > sections.id
+
+Ref: permissions.user_id > users.id
+Ref: permissions.module_id > modules.id
+
+Ref: activities.user_id > users.id
+Ref: activities.school_id > schools.id
+Ref: activities.category_id > categories.id
+
+Ref: likes.activity_id > activities.id
+Ref: likes.user_id > users.id
+Ref: comments.activity_id > activities.id
+Ref: comments.user_id > users.id
+
+Ref: student_badges.user_id > users.id
+Ref: student_badges.badge_id > badges.id
+Ref: points_log.user_id > users.id
+
+Ref: challenges.school_id > schools.id
+
+// Updated Relationship for Variants
+Ref: challenge_variants.challenge_id > challenges.id
+Ref: challenge_progress.user_id > users.id
+Ref: challenge_progress.challenge_variant_id > challenge_variants.id
+
+Ref: articles.school_id > schools.id
+Ref: articles.author_id > users.id
+Ref: article_views.user_id > users.id
+Ref: article_views.article_id > articles.id
+Ref: article_bookmarks.user_id > users.id
+Ref: article_bookmarks.article_id > articles.id
+Ref: activity_bookmarks.user_id > users.id
+Ref: activity_bookmarks.activity_id > activities.id

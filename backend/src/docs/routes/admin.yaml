@@ -1,0 +1,4206 @@
+paths:
+  /admin/admins:
+    post:
+      summary: Create a new admin
+      description: |
+        Create a new admin or sub admin account. 
+        
+        Permission rules:
+        - Super Admin: Can create both admin and sub_admin roles. school_id is REQUIRED when Super Admin creates an admin.
+        - Admin: Can only create sub_admin roles. school_id is OPTIONAL (inherited from requester's school if not provided).
+        - Sub Admin: Cannot create any admin users.
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - first_name
+                - last_name
+                - email
+                - password
+                - role
+              properties:
+                first_name:
+                  type: string
+                  example: John
+                  description: First name of the admin (2-50 characters)
+                last_name:
+                  type: string
+                  example: Doe
+                  description: Last name of the admin (2-50 characters)
+                email:
+                  type: string
+                  format: email
+                  example: admin@example.com
+                  description: Unique email address for the admin
+                password:
+                  type: string
+                  minLength: 8
+                  example: "Password123!@"
+                  description: "Password must contain uppercase, lowercase, number and special character (@$!%*?&#)"
+                role:
+                  type: string
+                  enum: [admin, sub_admin]
+                  example: admin
+                  description: "Role type: 'admin' for full administrative access, 'sub_admin' for limited access"
+                school_id:
+                  type: number
+                  example: 1
+                  description: |
+                    School ID to associate with the admin.
+                    - REQUIRED when role is admin.
+                    - OPTIONAL when role is sub_admin.
+      responses:
+        "201":
+          description: Admin created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Admin created successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 5
+                      email:
+                        type: string
+                        example: admin@example.com
+                      first_name:
+                        type: string
+                        example: John
+                      last_name:
+                        type: string
+                        example: Doe
+                      role:
+                        type: string
+                        example: admin
+                      school_id:
+                        type: integer
+                        example: 1
+                      is_active:
+                        type: boolean
+                        example: true
+        "400":
+          description: Validation error or email already exists
+        "403":
+          description: Insufficient permissions to create admin
+    get:
+      summary: Get all admins
+      description: Get paginated list of all school admins and sub admins
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+      responses:
+        "200":
+          description: Admins fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Admins fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      admins:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            email:
+                              type: string
+                            first_name:
+                              type: string
+                            last_name:
+                              type: string
+                            role:
+                              type: string
+                            is_active:
+                              type: boolean
+                            school_id:
+                              type: integer
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      totalCount:
+                        type: integer
+                      totalPages:
+                        type: integer
+        "403":
+          description: Only Super Admin can view admins
+  /admin/admins/{id}:
+    get:
+      summary: Get admin by ID
+      description: Get details of a specific admin
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Admin user ID
+      responses:
+        "200":
+          description: Admin fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Admin fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      email:
+                        type: string
+                      first_name:
+                        type: string
+                      last_name:
+                        type: string
+                      role:
+                        type: string
+                      is_active:
+                        type: boolean
+                      school_id:
+                        type: integer
+                      job_title:
+                        type: string
+        "403":
+          description: Only Super Admin can view admin details
+        "404":
+          description: Admin not found
+    put:
+      summary: Update admin
+      description: Update admin details
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Admin user ID
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                role:
+                  type: string
+                  enum: [admin, sub_admin]
+                school_id:
+                  type: number
+                job_title_id:
+                  type: string
+                  format: uuid
+                  nullable: true
+                  description: Optional job title (badge) assignment
+                is_active:
+                  type: boolean
+      responses:
+        "200":
+          description: Admin updated successfully
+        "400":
+          description: Validation error or email already exists
+        "403":
+          description: Only Super Admin can update admins
+        "404":
+          description: Admin not found
+    delete:
+      summary: Delete admin
+      description: Permanently delete an admin
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Admin user ID
+      responses:
+        "200":
+          description: Admin deleted successfully
+        "403":
+          description: Only Super Admin can delete admins
+        "404":
+          description: Admin not found
+  /admin/admins/{id}/toggle-status:
+    patch:
+      summary: Toggle admin status
+      description: Activate or deactivate an admin account
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Admin user ID
+      responses:
+        "200":
+          description: Admin status toggled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Admin activated successfully
+                  data:
+                    type: object
+                    properties:
+                      is_active:
+                        type: boolean
+                        example: true
+        "403":
+          description: Only Super Admin can toggle admin status
+        "404":
+          description: Admin not found
+  /admin/categories:
+    post:
+      summary: Create a new activity category
+      description: Create a new category for activities. Requires admin authentication.
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Category name
+                  example: "Environment"
+                color:
+                  type: string
+                  description: Hex color code for the category
+                  example: "#4CAF50"
+                units:
+                  type: string
+                  description: Comma-separated or JSON array of unit strings (e.g. "kg,m" or "[\"kg\",\"m\"]"). The API accepts either a string or an array.
+                  example: "kg,m"
+                icon:
+                  type: string
+                  format: binary
+                  description: Icon image file (PNG, JPG, etc.)
+      responses:
+        "201":
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  message:
+                    type: string
+                    example: "Category created successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                        example: 1
+                      name:
+                        type: string
+                        example: "Environment"
+                      color:
+                        type: string
+                        example: "#4CAF50"
+                      icon_url:
+                        type: string
+                        example: "/uploads/categories/icon-1.png"
+                      units:
+                        type: array
+                        items:
+                          type: string
+                        example: ["kg", "m"]
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: "Validation failed"
+        "401":
+          description: Unauthorized - Missing authentication
+        "500":
+          description: Internal server error
+    get:
+      summary: Get all categories
+      description: Retrieves all activity categories.
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Categories fetched successfully
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal server error
+  /admin/activities:
+    get:
+      summary: Get all activities (admin)
+      description: Retrieves a paginated list of all activities with optional filters. Requires admin authentication.
+      tags:
+        - Admin - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+          description: Filter activities by status
+        - name: school_id
+          in: query
+          schema:
+            type: integer
+          description: Filter activities by school ID
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+          description: Filter activities by category ID (activity or challenge category)
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by activity title or description
+      responses:
+        "200":
+          description: Activities fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Activities fetched successfully"
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: number
+                              example: 1
+                            title:
+                              type: string
+                              example: "Planted trees in school garden"
+                            description:
+                              type: string
+                              nullable: true
+                              example: "Organized and planted 20 trees with classmates"
+                            photos:
+                              type: array
+                              items:
+                                type: string
+                              example: ["https://example.com/photo1.jpg"]
+                            status:
+                              type: string
+                              example: "pending"
+                            points:
+                              type: number
+                              nullable: true
+                              example: 0
+                            user_id:
+                              type: number
+                              example: 2
+                            user_email:
+                              type: string
+                              nullable: true
+                              example: "student@example.com"
+                            first_name:
+                              type: string
+                              nullable: true
+                              example: "Ayesha"
+                            last_name:
+                              type: string
+                              nullable: true
+                              example: "Khan"
+                            school_id:
+                              type: number
+                              nullable: true
+                              example: 3
+                            school_name:
+                              type: string
+                              nullable: true
+                              example: "Green Valley School"
+                            category_id:
+                              type: number
+                              nullable: true
+                              example: 1
+                            category_name:
+                              type: string
+                              nullable: true
+                              example: "Environment"
+                            challenge_title:
+                              type: string
+                              nullable: true
+                              example: "Plant a Tree Week"
+                            challenge_description:
+                              type: string
+                              nullable: true
+                              example: "Plant a tree and share a photo"
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-01-30T10:30:00Z"
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 25
+                      totalPages:
+                        type: integer
+                        example: 3
+        "401":
+          description: Unauthorized
+        "403":
+          description: Only admins can access activities
+        "500":
+          description: Internal server error
+  /admin/activities/{id}:
+    get:
+      summary: Get activity by ID (admin)
+      description: Retrieves a single activity by ID. Requires admin authentication.
+      tags:
+        - Admin - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Activity ID
+      responses:
+        "200":
+          description: Activity fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Activity fetched successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                        example: 1
+                      title:
+                        type: string
+                        example: "Planted trees in school garden"
+                      description:
+                        type: string
+                        nullable: true
+                        example: "Organized and planted 20 trees with classmates"
+                      photos:
+                        type: array
+                        items:
+                          type: string
+                        example: ["https://example.com/photo1.jpg"]
+                      status:
+                        type: string
+                        example: "pending"
+                      points:
+                        type: number
+                        nullable: true
+                        example: 0
+                      user_id:
+                        type: number
+                        example: 2
+                      user_email:
+                        type: string
+                        nullable: true
+                        example: "student@example.com"
+                      first_name:
+                        type: string
+                        nullable: true
+                        example: "Ayesha"
+                      last_name:
+                        type: string
+                        nullable: true
+                        example: "Khan"
+                      school_id:
+                        type: number
+                        nullable: true
+                        example: 3
+                      school_name:
+                        type: string
+                        nullable: true
+                        example: "Green Valley School"
+                      category_id:
+                        type: number
+                        nullable: true
+                        example: 1
+                      category_name:
+                        type: string
+                        nullable: true
+                        example: "Environment"
+                      category_icon:
+                        type: string
+                        nullable: true
+                        example: "https://example.com/uploads/categories/icon-1.png"
+                      challenge_title:
+                        type: string
+                        nullable: true
+                        example: "Plant a Tree Week"
+                      challenge_description:
+                        type: string
+                        nullable: true
+                        example: "Plant a tree and share a photo"
+                      likes_count:
+                        type: number
+                        example: 5
+                      comments_count:
+                        type: number
+                        example: 2
+                      reviewer:
+                        type: object
+                        nullable: true
+                        properties:
+                          id:
+                            type: number
+                            example: 10
+                          email:
+                            type: string
+                            example: "admin@example.com"
+                          first_name:
+                            type: string
+                            example: "Admin"
+                          last_name:
+                            type: string
+                            example: "User"
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2026-01-30T10:30:00Z"
+        "400":
+          description: Invalid activity ID
+        "401":
+          description: Unauthorized
+        "404":
+          description: Activity not found
+        "500":
+          description: Internal server error
+  /admin/activities/{id}/review:
+    post:
+      summary: Approve or reject a student activity (admin)
+      description: Review a pending activity by either approving (award points) or rejecting (provide reason). Only pending activities can be reviewed.
+      tags:
+        - Admin - Activities
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Activity ID to review
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              oneOf:
+                - type: object
+                  required:
+                    - status
+                    - points
+                  properties:
+                    status:
+                      type: string
+                      enum: [approved]
+                    points:
+                      type: integer
+                      example: 10
+                - type: object
+                  required:
+                    - status
+                    - rejection_reason
+                  properties:
+                    status:
+                      type: string
+                      enum: [rejected]
+                    rejection_reason:
+                      type: string
+                      example: "Incomplete work"
+      responses:
+        "200":
+          description: Activity reviewed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Activity approved successfully"
+                  data:
+                    type: object
+                    properties:
+                      points:
+                        type: integer
+                        nullable: true
+                        example: 10
+              examples:
+                approved:
+                  summary: Approved response
+                  value:
+                    success: true
+                    message: "Activity approved successfully"
+                    data:
+                      points: 10
+                rejected:
+                  summary: Rejected response
+                  value:
+                    success: true
+                    message: "Activity rejected successfully"
+                    data: {}
+        "400":
+          description: Bad request - missing points or rejection reason, or activity not pending
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden - insufficient permissions
+        "404":
+          description: Activity not found
+        "500":
+          description: Internal server error
+  /admin/articles:
+    post:
+      summary: Create a new article
+      description: Create a new article with optional cover image. Requires admin or teacher authentication.
+      tags:
+        - Admin - Articles
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+                - category_id
+              properties:
+                title:
+                  type: string
+                  example: "Sustainability at School"
+                content:
+                  type: string
+                  example: "Tips and practices for sustainable living at school."
+                category_id:
+                  type: integer
+                  example: 1
+                points:
+                  type: integer
+                  example: 10
+                school_id:
+                  type: integer
+                  nullable: true
+                  example: 1
+                cover_image:
+                  type: string
+                  format: binary
+                  description: Optional cover image for the article
+                thumbnail_image:
+                  type: string
+                  format: uri
+                  example: "thumbnail_image_url"
+                  description: Optional thumbnail image for the article
+      responses:
+        "201":
+          description: Article created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article created successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 12
+                      title:
+                        type: string
+                        example: "Sustainability at School"
+                      content:
+                        type: string
+                        example: "Tips and practices for sustainable living at school."
+                      cover_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/article-12.png"
+                      thumbnail_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/article-12-thumbnail.png"
+                      points:
+                        type: integer
+                        example: 10
+                      category_id:
+                        type: integer
+                        example: 1
+                      category_name:
+                        type: string
+                        nullable: true
+                        example: "Environment"
+                      school_id:
+                        type: integer
+                        nullable: true
+                        example: 1
+                      author_id:
+                        type: integer
+                        example: 5
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2026-02-09T12:00:00Z"
+        "400":
+          description: Validation error
+        "403":
+          description: You don't have permission to create articles
+        "500":
+          description: Internal server error
+    get:
+      summary: Get all articles
+      description: Retrieves a paginated list of articles with optional filters. Requires admin or teacher authentication.
+      tags:
+        - Admin - Articles
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+        - name: school_id
+          in: query
+          schema:
+            type: integer
+          description: Filter articles by school ID
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by article title or content
+      responses:
+        "200":
+          description: Articles fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Articles fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 12
+                            title:
+                              type: string
+                              example: "Sustainability at School"
+                            content:
+                              type: string
+                              example: "Tips and practices for sustainable living at school."
+                            cover_image:
+                              type: string
+                              nullable: true
+                              example: "https://api.thrive.com/articles/article-12.png"
+                            thumbnail_image:
+                              type: string
+                              nullable: true
+                              example: "https://api.thrive.com/articles/article-12-thumbnail.png"
+                            points:
+                              type: integer
+                              example: 10
+                            category_id:
+                              type: integer
+                              example: 1
+                            category_name:
+                              type: string
+                              nullable: true
+                              example: "Environment"
+                            school_id:
+                              type: integer
+                              nullable: true
+                              example: 1
+                            author_id:
+                              type: integer
+                              example: 5
+                            author_email:
+                              type: string
+                              nullable: true
+                              example: "teacher@school.com"
+                            author_first_name:
+                              type: string
+                              nullable: true
+                              example: "Ayesha"
+                            author_last_name:
+                              type: string
+                              nullable: true
+                              example: "Khan"
+                            school_name:
+                              type: string
+                              nullable: true
+                              example: "Green Valley School"
+                            views_count:
+                              type: integer
+                              example: 12
+                            bookmarks_count:
+                              type: integer
+                              example: 3
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-09T12:00:00Z"
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 25
+                      totalPages:
+                        type: integer
+                        example: 3
+        "403":
+          description: You don't have permission to view articles
+        "500":
+          description: Internal server error
+  /admin/articles/{id}:
+    get:
+      summary: Get article by ID
+      description: Retrieves a single article by ID. Requires admin or teacher authentication.
+      tags:
+        - Admin - Articles
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Article ID
+      responses:
+        "200":
+          description: Article fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 12
+                      title:
+                        type: string
+                        example: "Sustainability at School"
+                      content:
+                        type: string
+                        example: "Tips and practices for sustainable living at school."
+                      cover_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/article-12.png"
+                      thumbnail_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/article-12-thumbnail.png"
+                      points:
+                        type: integer
+                        example: 10
+                      category_id:
+                        type: integer
+                        example: 1
+                      category_name:
+                        type: string
+                        nullable: true
+                        example: "Environment"
+                      school_id:
+                        type: integer
+                        nullable: true
+                        example: 1
+                      author_id:
+                        type: integer
+                        example: 5
+                      author_email:
+                        type: string
+                        nullable: true
+                        example: "teacher@school.com"
+                      author_first_name:
+                        type: string
+                        nullable: true
+                        example: "Ayesha"
+                      author_last_name:
+                        type: string
+                        nullable: true
+                        example: "Khan"
+                      school_name:
+                        type: string
+                        nullable: true
+                        example: "Green Valley School"
+                      views_count:
+                        type: integer
+                        example: 12
+                      bookmarks_count:
+                        type: integer
+                        example: 3
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2026-02-09T12:00:00Z"
+        "404":
+          description: Article not found
+        "500":
+          description: Internal server error
+    put:
+      summary: Update article
+      description: Update an article by ID. Admins can update any article, teachers can only update their own articles.
+      tags:
+        - Admin - Articles
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Article ID
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Updated title"
+                content:
+                  type: string
+                  example: "Updated content for the article."
+                points:
+                  type: integer
+                  example: 15
+                category_id:
+                  type: integer
+                  example: 1
+                school_id:
+                  type: integer
+                  nullable: true
+                  example: 1
+                cover_image:
+                  type: string
+                  format: binary
+                  description: Optional cover image for the article
+                thumbnail_image:
+                  type: string
+                  example: "thumbnail_image_url"
+                  description: Optional thumbnail image for the article
+      responses:
+        "200":
+          description: Article updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article updated successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 12
+                      title:
+                        type: string
+                        example: "Updated title"
+                      content:
+                        type: string
+                        example: "Updated content for the article."
+                      cover_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/article-12.png"
+                      thumbnail_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/article-12-thumbnail.png"
+                      points:
+                        type: integer
+                        example: 15
+                      category_id:
+                        type: integer
+                        example: 1
+                      category_name:
+                        type: string
+                        nullable: true
+                        example: "Environment"
+                      school_id:
+                        type: integer
+                        nullable: true
+                        example: 1
+                      author_id:
+                        type: integer
+                        example: 5
+        "400":
+          description: Validation error
+        "403":
+          description: You don't have permission to update articles
+        "404":
+          description: Article not found
+        "500":
+          description: Internal server error
+    delete:
+      summary: Delete article
+      description: Delete an article by ID. Admins can delete any article, teachers can only delete their own articles.
+      tags:
+        - Admin - Articles
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Article ID
+      responses:
+        "200":
+          description: Article deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article deleted successfully
+        "403":
+          description: You don't have permission to delete articles
+        "404":
+          description: Article not found
+        "500":
+          description: Internal server error
+  /admin/articles/upload-editor-image:
+    post:
+      summary: Upload image for rich text editor
+      description: Uploads an image file to be used within a rich text editor.
+      tags:
+        - Admin - Articles
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Image file to upload (PNG, JPG, GIF, etc.)
+      responses:
+        "200":
+          description: Image uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Image uploaded successfully
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        example: "https://api.thrive.com/articles/image-123.png"
+                      location:
+                        type: string
+                        example: "https://api.thrive.com/articles/image-123.png"
+                      link:
+                        type: string
+                        example: "https://api.thrive.com/articles/image-123.png"
+                      filename:
+                        type: string
+                        example: "image-123.png"
+        "400":
+          description: No image file uploaded
+        "500":
+          description: Failed to upload image
+  /admin/articles/upload-thumbnail:
+    post:
+      summary: Upload article thumbnail
+      description: Uploads a thumbnail image file for an article.
+      tags:
+        - Admin - Articles
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - thumbnail
+              properties:
+                thumbnail:
+                  type: string
+                  format: binary
+                  description: Thumbnail image file to upload (PNG, JPG, GIF, etc.)
+      responses:
+        "200":
+          description: Thumbnail uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Thumbnail uploaded successfully
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        example: "https://api.thrive.com/articles/thumbnail-456.png"
+                      filename:
+                        type: string
+                        example: "thumbnail-456.png"
+        "400":
+          description: No thumbnail file uploaded
+        "500":
+          description: Failed to upload thumbnail
+
+  /admin/levels:
+    post:
+      summary: Create a level
+      description: Creates a new level with unique `id` and `min_xp`.
+      tags:
+        - Admin - Levels
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - id
+                - title
+                - min_xp
+              properties:
+                id:
+                  type: integer
+                  minimum: 1
+                  example: 1
+                title:
+                  type: string
+                  example: "Level 1"
+                min_xp:
+                  type: integer
+                  minimum: 0
+                  example: 0
+      responses:
+        "201":
+          description: Level created successfully
+        "400":
+          description: Validation error or duplicate level threshold/id
+        "403":
+          description: You don't have permission to create levels
+        "500":
+          description: Internal server error
+    get:
+      summary: Get all levels
+      description: Returns all levels sorted by `min_xp` including `students_count`.
+      tags:
+        - Admin - Levels
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Levels fetched successfully
+        "500":
+          description: Internal server error
+  /admin/levels/{id}:
+    get:
+      summary: Get level by ID
+      description: Returns level details and `students_count`.
+      tags:
+        - Admin - Levels
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Level ID
+      responses:
+        "200":
+          description: Level fetched successfully
+        "404":
+          description: Level not found
+        "500":
+          description: Internal server error
+    put:
+      summary: Update level
+      description: Updates level title and/or `min_xp` with overlap checks.
+      tags:
+        - Admin - Levels
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Level ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Updated Level 1"
+                min_xp:
+                  type: integer
+                  minimum: 0
+                  example: 100
+      responses:
+        "200":
+          description: Level updated successfully
+        "400":
+          description: Validation error or duplicate XP threshold
+        "403":
+          description: You don't have permission to update levels
+        "404":
+          description: Level not found
+        "500":
+          description: Internal server error
+    delete:
+      summary: Delete level
+      description: Deletes a level if no students are currently assigned to it.
+      tags:
+        - Admin - Levels
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Level ID
+      responses:
+        "200":
+          description: Level deleted successfully
+        "400":
+          description: Cannot delete level with students assigned
+        "403":
+          description: Only Super Admin can delete levels
+        "404":
+          description: Level not found
+        "500":
+          description: Internal server error
+  /admin/levels/apply-formula:
+    post:
+      summary: Apply level difficulty formula
+      description: Regenerates level XP thresholds from a formula and realigns student levels based on current XP.
+      tags:
+        - Admin - Levels
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                total_levels:
+                  type: integer
+                  minimum: 2
+                  maximum: 500
+                  default: 100
+                base_min_xp:
+                  type: integer
+                  minimum: 0
+                  default: 0
+                initial_gap:
+                  type: integer
+                  minimum: 1
+                  default: 100
+                tier_size:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  default: 20
+                base_increment:
+                  type: integer
+                  minimum: 1
+                  default: 10
+                growth_divisor:
+                  type: number
+                  exclusiveMinimum: 0
+                  default: 50
+                title_prefix:
+                  type: string
+                  minLength: 1
+                  default: Level
+      responses:
+        "200":
+          description: Level difficulty formula applied successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Level difficulty formula applied successfully
+                  data:
+                    type: object
+                    properties:
+                      formula:
+                        type: object
+                        properties:
+                          total_levels:
+                            type: integer
+                          base_min_xp:
+                            type: integer
+                          initial_gap:
+                            type: integer
+                          tier_size:
+                            type: integer
+                          base_increment:
+                            type: integer
+                          growth_divisor:
+                            type: number
+                          title_prefix:
+                            type: string
+                      preview:
+                        type: object
+                        properties:
+                          first:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                title:
+                                  type: string
+                                min_xp:
+                                  type: integer
+                          last:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                title:
+                                  type: string
+                                min_xp:
+                                  type: integer
+        "400":
+          description: Validation error
+        "403":
+          description: You don't have permission to update level difficulty
+        "500":
+          description: Internal server error
+  /admin/admins/{id}/change-password:
+    patch:
+      summary: Change admin password
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [old_password, new_password]
+              properties:
+                old_password:
+                  type: string
+                new_password:
+                  type: string
+      responses:
+        "200":
+          description: Password changed successfully
+        "400":
+          description: Validation error
+        "403":
+          description: Forbidden
+        "404":
+          description: Admin not found
+  /admin/users:
+    get:
+      summary: Get all users
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Users fetched successfully
+    post:
+      summary: Create user
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - first_name
+                - last_name
+                - email
+                - password
+                - confirmPassword
+                - role
+              properties:
+                first_name:
+                  type: string
+                  example: John
+                last_name:
+                  type: string
+                  example: Doe
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  minLength: 8
+                  example: User@123
+                confirmPassword:
+                  type: string
+                  example: User@123
+                role:
+                  type: string
+                  example: student
+                profile_image:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: User created successfully
+        "400":
+          description: Validation error
+  /admin/users/{id}:
+    get:
+      summary: Get user by ID
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User fetched successfully
+        "404":
+          description: User not found
+    patch:
+      summary: Update user
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                profile_image:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: User updated successfully
+        "404":
+          description: User not found
+    delete:
+      summary: Delete user
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User deleted successfully
+        "404":
+          description: User not found
+  /admin/modules:
+    get:
+      summary: Get all permission modules
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Modules fetched successfully
+  /admin/users/{id}/permissions:
+    get:
+      summary: Get user permissions
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Permissions fetched successfully
+    put:
+      summary: Update user permissions
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - permissions
+              properties:
+                permissions:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - module_id
+                      - can_create
+                      - can_read
+                      - can_edit
+                      - can_delete
+                    properties:
+                      module_id:
+                        type: integer
+                        example: 1
+                      can_create:
+                        type: boolean
+                        example: true
+                      can_read:
+                        type: boolean
+                        example: true
+                      can_edit:
+                        type: boolean
+                        example: false
+                      can_delete:
+                        type: boolean
+                        example: false
+      responses:
+        "200":
+          description: Permissions updated successfully
+  /admin/schools/setup:
+    post:
+      summary: Complete school setup
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: School setup completed successfully
+  /admin/schools:
+    post:
+      summary: Create school
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: Example School
+                slug:
+                  type: string
+                  example: example-school
+                address:
+                  type: string
+                  example: 123 Main St, City, State
+                subscription_status:
+                  type: string
+                  enum: [active, inactive, suspended]
+                  example: active
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: School created successfully
+    get:
+      summary: Get all schools
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Schools fetched successfully
+  /admin/schools/{id}:
+    get:
+      summary: Get school by ID
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: School fetched successfully
+        "404":
+          description: School not found
+    patch:
+      summary: Update school
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Example School
+                slug:
+                  type: string
+                  example: example-school
+                address:
+                  type: string
+                  example: 123 Main St, City, State
+                subscription_status:
+                  type: string
+                  enum: [active, inactive, suspended]
+                  example: active
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: School updated successfully
+        "404":
+          description: School not found
+    delete:
+      summary: Delete school
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: School deleted successfully
+        "404":
+          description: School not found
+  /admin/schools/{id}/toggle-status:
+    patch:
+      summary: Toggle school status
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: School status updated successfully
+  /admin/schools/ids/names:
+    get:
+      summary: Get school ids and names
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: School ids fetched successfully
+  /admin/school-requests:
+    get:
+      summary: Get all school requests
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: School requests fetched successfully
+  /admin/school-requests/{id}/approve:
+    post:
+      summary: Approve school request
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: School request approved successfully
+  /admin/school-requests/{id}/reject:
+    post:
+      summary: Reject school request
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: School request rejected successfully
+  /admin/system-users:
+    post:
+      summary: Create system user
+      description: Create a new system user (Super Sub-Admin). Only Super Admin can access this endpoint.
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - first_name
+                - last_name
+                - email
+                - password
+              properties:
+                first_name:
+                  type: string
+                  example: John
+                last_name:
+                  type: string
+                  example: Doe
+                email:
+                  type: string
+                  format: email
+                  example: systemuser@example.com
+                password:
+                  type: string
+                  minLength: 8
+                  example: SystemUser@123
+      responses:
+        "201":
+          description: System user created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: System User created successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 5
+                      email:
+                        type: string
+                        example: systemuser@example.com
+                      first_name:
+                        type: string
+                        example: John
+                      last_name:
+                        type: string
+                        example: Doe
+                      role:
+                        type: string
+                        example: super_sub_admin
+                      is_active:
+                        type: boolean
+                        example: true
+                      job_title_id:
+                        type: string
+                        format: uuid
+                        nullable: true
+                        example: "550e8400-e29b-41d4-a716-446655440000"
+                        description: Assigned job title UUID (null if not assigned)
+                      job_title_name:
+                        type: string
+                        nullable: true
+                        example: "System Administrator"
+                        description: Job title name (null if not assigned)
+        "400":
+          description: Validation error or email already exists
+        "403":
+          description: Only Super Admin can create system users
+    get:
+      summary: Get all system users
+      description: Get paginated list of all system users. Only Super Admin can access this endpoint.
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search by name or email
+      responses:
+        "200":
+          description: System users fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: System Users fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      systemUsers:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 5
+                            email:
+                              type: string
+                              example: systemuser@example.com
+                            first_name:
+                              type: string
+                              example: John
+                            last_name:
+                              type: string
+                              example: Doe
+                            role:
+                              type: string
+                              example: super_sub_admin
+                            is_active:
+                              type: boolean
+                              example: true
+                            job_title_id:
+                              type: string
+                              format: uuid
+                              nullable: true
+                              example: "550e8400-e29b-41d4-a716-446655440000"
+                              description: Assigned job title UUID
+                            job_title_name:
+                              type: string
+                              nullable: true
+                              example: "System Administrator"
+                              description: Job title name
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2024-01-15T10:30:00Z"
+                      pagination:
+                        $ref: "#/components/schemas/Pagination"
+  /admin/system-users/{id}:
+    get:
+      summary: Get system user by ID
+      description: Get details of a specific system user. Only Super Admin can access this endpoint.
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: System user fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: System User fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 5
+                      email:
+                        type: string
+                        example: systemuser@example.com
+                      first_name:
+                        type: string
+                        example: John
+                      last_name:
+                        type: string
+                        example: Doe
+                      role:
+                        type: string
+                        example: super_sub_admin
+                      is_active:
+                        type: boolean
+                        example: true
+                      job_title_id:
+                        type: string
+                        format: uuid
+                        nullable: true
+                        example: "550e8400-e29b-41d4-a716-446655440000"
+                        description: Assigned job title UUID (null if not assigned)
+                      job_title_name:
+                        type: string
+                        nullable: true
+                        example: "System Administrator"
+                        description: Job title name (null if not assigned)
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2024-01-15T10:30:00Z"
+                      updated_at:
+                        type: string
+                        format: date-time
+                        example: "2024-01-20T14:45:00Z"
+        "404":
+          description: System user not found
+    put:
+      summary: Update system user
+      description: Update a system user. Only Super Admin can access this endpoint.
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: John
+                last_name:
+                  type: string
+                  example: Doe
+                email:
+                  type: string
+                  format: email
+                  example: systemuser@example.com
+                job_title_id:
+                  type: string
+                  format: uuid
+                  nullable: true
+                  description: Optional global job title (badge) assignment
+                is_active:
+                  type: boolean
+      responses:
+        "200":
+          description: System user updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: System User updated successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 5
+                      email:
+                        type: string
+                        example: systemuser@example.com
+                      first_name:
+                        type: string
+                        example: John
+                      last_name:
+                        type: string
+                        example: Doe
+                      role:
+                        type: string
+                        example: super_sub_admin
+                      is_active:
+                        type: boolean
+                        example: true
+                      job_title_id:
+                        type: string
+                        format: uuid
+                        nullable: true
+                        example: "550e8400-e29b-41d4-a716-446655440000"
+                        description: Assigned job title UUID (null if not assigned)
+                      job_title_name:
+                        type: string
+                        nullable: true
+                        example: "System Administrator"
+                        description: Job title name (null if not assigned)
+                      updated_at:
+                        type: string
+                        format: date-time
+                        example: "2024-01-20T14:45:00Z"
+        "400":
+          description: Validation error or email already exists
+        "403":
+          description: Only Super Admin can update system users
+        "404":
+          description: System user not found
+    delete:
+      summary: Delete system user
+      description: Delete a system user. Only Super Admin can access this endpoint.
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: System user deleted successfully
+        "403":
+          description: Only Super Admin can delete system users
+        "404":
+          description: System user not found
+  /admin/system-users/{id}/toggle-status:
+    patch:
+      summary: Toggle system user status
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: System user status updated successfully
+  /admin/system-users/{id}/change-password:
+    patch:
+      summary: Change system user password
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - password
+              properties:
+                password:
+                  type: string
+                  minLength: 8
+                  example: NewPassword@123
+      responses:
+        "200":
+          description: Password changed successfully
+  /admin/roles:
+    get:
+      summary: Get all roles
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Roles fetched successfully
+  /admin/roles/{id}/display-name:
+    patch:
+      summary: Update role display name
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - display_name
+              properties:
+                display_name:
+                  type: string
+                  example: "Super Administrator"
+      responses:
+        "200":
+          description: Role display name updated successfully
+  /admin/categories/{id}:
+    get:
+      summary: Get category by ID
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Category fetched successfully
+        "404":
+          description: Category not found
+    put:
+      summary: Update category
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Category name
+                  example: "Environment"
+                color:
+                  type: string
+                  description: Hex color code for the category
+                  example: "#4CAF50"
+                units:
+                  type: string
+                  description: Comma-separated or JSON array of unit strings (e.g. "kg,m" or "[\"kg\",\"m\"]"). The API accepts either a string or an array.
+                  example: "kg,m"
+                icon:
+                  type: string
+                  format: binary
+                  description: Icon image file (PNG, JPG, etc.)
+      responses:
+        "200":
+          description: Category updated successfully
+    delete:
+      summary: Delete category
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Category deleted successfully
+  /admin/challenges:
+    post:
+      summary: Create challenge
+      description: Create a challenge.
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - title
+                - variants
+              properties:
+                title:
+                  type: string
+                  example: "Plant a tree week"
+                description:
+                  type: string
+                  example: "School-wide tree planting challenge"
+                start_date:
+                  type: string
+                  format: date-time
+                end_date:
+                  type: string
+                  format: date-time
+                is_active:
+                  type: boolean
+                school_id:
+                  type: integer
+                challenge_type_id:
+                  type: integer
+                category_id:
+                  type: integer
+                variants:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "Beginner"
+                      description:
+                        type: string
+                        example: "Plant 5 saplings"
+                      target_count:
+                        type: integer
+                        example: 5
+                      target_unit:
+                        type: string
+                        example: "saplings"
+                      points:
+                        type: integer
+                        example: 50
+      responses:
+        "201":
+          description: Challenge created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Challenge created successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      title:
+                        type: string
+                        example: "Plant a tree week"
+                      variants:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ChallengeVariant'
+    get:
+      summary: Get all challenges
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Challenges fetched successfully
+  /admin/challenges/{id}:
+    get:
+      summary: Get challenge by ID
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Challenge fetched successfully
+    put:
+      summary: Update challenge
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Plant 100 Trees"
+                description:
+                  type: string
+                  example: "Help the environment by planting trees"
+                start_date:
+                  type: string
+                  format: date
+                  example: "2024-01-01"
+                end_date:
+                  type: string
+                  format: date
+                  example: "2024-12-31"
+                is_active:
+                  type: boolean
+                  example: true
+                school_id:
+                  type: integer
+                  example: 1
+                challenge_type_id:
+                  type: integer
+                  example: 1
+                category_id:
+                  type: integer
+                  example: 1
+                variants:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "Easy"
+                      description:
+                        type: string
+                        example: "Plant 10 trees"
+                      target_count:
+                        type: integer
+                        example: 10
+                      target_unit:
+                        type: string
+                        example: "trees"
+                      points:
+                        type: integer
+                        example: 50
+      responses:
+        "200":
+          description: Challenge updated successfully
+    delete:
+      summary: Delete challenge
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Challenge deleted successfully
+  /admin/challenge-types:
+    get:
+      summary: Get all challenge types
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Challenge types fetched successfully
+  /admin/badges:
+    post:
+      summary: Create badge
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: "Eco Warrior"
+                criteria:
+                  type: string
+                  example: "Complete 10 environmental activities"
+                icon:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Badge created successfully
+    get:
+      summary: Get all badges
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Badges fetched successfully
+  /admin/badges/{id}:
+    get:
+      summary: Get badge by ID
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Badge fetched successfully
+    put:
+      summary: Update badge
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Eco Warrior"
+                criteria:
+                  type: string
+                  example: "Complete 10 environmental activities"
+                icon:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Badge updated successfully
+    delete:
+      summary: Delete badge
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Badge deleted successfully
+  /admin/students:
+    post:
+      summary: Create student
+      description: Create a new student with email, password, name, school_id, class_id, and optional section_id
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - name
+                - school_id
+                - class_id
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: student@example.com
+                password:
+                  type: string
+                  minLength: 8
+                  description: Must contain uppercase, lowercase, number and special character (@$!%*?&#)
+                  example: Student@123
+                name:
+                  type: string
+                  example: John Doe
+                school_id:
+                  type: integer
+                  example: 1
+                class_id:
+                  type: integer
+                  example: 1
+                section_id:
+                  type: integer
+                  nullable: true
+                  example: 1
+      responses:
+        "201":
+          description: Student created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Student created successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      email:
+                        type: string
+                      name:
+                        type: string
+                      school_id:
+                        type: integer
+                      class_id:
+                        type: integer
+        "400":
+          description: Validation error
+        "500":
+          description: Server error
+    get:
+      summary: Get all students
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: school_id
+          schema:
+            type: integer
+        - in: query
+          name: class_id
+          schema:
+            type: integer
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: is_active
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Students fetched successfully
+  /admin/students/bulk-upload:
+    post:
+      summary: Bulk upload students
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                school_id:
+                  type: integer
+      responses:
+        "201":
+          description: Bulk upload completed
+        "400":
+          description: Validation error
+  /admin/students/{id}:
+    get:
+      summary: Get student by ID
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student fetched successfully
+    put:
+      summary: Update student
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                class_id:
+                  type: integer
+                  example: 1
+                section_id:
+                  type: integer
+                  example: 1
+                is_active:
+                  type: boolean
+                  example: true
+      responses:
+        "200":
+          description: Student updated successfully
+    delete:
+      summary: Delete student
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student deleted successfully
+  /admin/teachers:
+    post:
+      summary: Create teacher
+      description: Create a new teacher account. Email must be unique. If a teacher with the same email already exists, the endpoint will return an error.
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - first_name
+                - last_name
+                - school_id
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Unique email address for the teacher
+                  example: teacher@example.com
+                password:
+                  type: string
+                  minLength: 8
+                  description: "Password must contain uppercase, lowercase, number and special character (@$!%*?&#)"
+                  example: "Password123!@"
+                first_name:
+                  type: string
+                  maxLength: 50
+                  description: Teacher's first name
+                  example: John
+                last_name:
+                  type: string
+                  maxLength: 50
+                  description: Teacher's last name
+                  example: Doe
+                school_id:
+                  type: number
+                  description: The school ID the teacher belongs to
+                  example: 1
+      responses:
+        "201":
+          description: Teacher created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Teacher created successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 10
+                      email:
+                        type: string
+                        example: teacher@example.com
+                      first_name:
+                        type: string
+                        example: John
+                      last_name:
+                        type: string
+                        example: Doe
+                      is_active:
+                        type: boolean
+                        example: true
+        "400":
+          description: Validation error or email already exists
+        "403":
+          description: Insufficient permissions
+        "500":
+          description: Internal server error
+    get:
+      summary: Get all teachers
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Teachers fetched successfully
+  /admin/teachers/{id}:
+    get:
+      summary: Get teacher by ID
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Teacher fetched successfully
+    put:
+      summary: Update teacher
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: John
+                last_name:
+                  type: string
+                  example: Doe
+                is_active:
+                  type: boolean
+                  example: true
+      responses:
+        "200":
+          description: Teacher updated successfully
+    delete:
+      summary: Delete teacher
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Teacher deleted successfully
+  /admin/teachers/bulk-upload:
+    post:
+      summary: Bulk upload teachers
+      description: Upload a CSV or XLSX file to create multiple teacher records.
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV or XLSX file containing teacher data.
+                school_id:
+                  type: integer
+                  description: Optional. ID of the school to associate teachers with. Required for Super Admin if not associated with a school.
+      responses:
+        "201":
+          description: Bulk upload completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Bulk upload completed. 5 teachers created successfully
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: integer
+                        example: 5
+                      errors:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            row:
+                              type: integer
+                              example: 2
+                            message:
+                              type: string
+                              example: "Invalid email format"
+        "400":
+          description: Validation error or invalid file format
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal server error
+  /admin/classes:
+    get:
+      summary: Get global classes
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Classes fetched successfully
+  /admin/schools/{schoolId}/classes:
+    get:
+      summary: Get classes by school
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: schoolId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Classes fetched successfully
+  /admin/classes/{classId}/sections:
+    post:
+      summary: Create section
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: classId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: "Section A"
+      responses:
+        "201":
+          description: Section created successfully
+    get:
+      summary: Get sections by class
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: classId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sections fetched successfully
+  /admin/classes/{classId}/sections/{id}:
+    get:
+      summary: Get section by ID
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: classId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Section fetched successfully
+    put:
+      summary: Update section
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: classId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Section A"
+      responses:
+        "200":
+          description: Section updated successfully
+    delete:
+      summary: Delete section
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: classId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Section deleted successfully
+  /admin/dashboard/stats:
+    get:
+      summary: Get dashboard stats
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Dashboard stats fetched successfully
+  /admin/dashboard/recent-activities:
+    get:
+      summary: Get recent activities for dashboard
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Recent activities fetched successfully
+  /admin/dashboard/top-students:
+    get:
+      summary: Get top students for dashboard
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Top students fetched successfully
+  /admin/dashboard/schools-progress:
+    get:
+      summary: Get schools progress
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Schools progress fetched successfully
+  /admin/dashboard/growth-trends:
+    get:
+      summary: Get growth trends
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Growth trends fetched successfully
+  /admin/dashboard/weekly-stats:
+    get:
+      summary: Get weekly stats
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Weekly stats fetched successfully
+  /admin/audit-logs:
+    get:
+      summary: Get audit logs
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Audit logs fetched successfully
+  /admin/audit-logs/{id}:
+    get:
+      summary: Get audit log by ID
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Audit log fetched successfully
+        "404":
+          description: Audit log not found
+  /admin/job-titles:
+    post:
+      summary: Create Job Title
+      description: |
+        Create a new job title (badge). This can be either:
+        - **Global Job Title** (no school_id): Created by Super Admin only, visible across all schools
+        - **School-Specific Job Title** (with school_id): Created by any admin for their school
+        
+        **Permissions:**
+        - Super Admin: Can create global job titles (no school_id)
+        - Admin/Sub Admin: Can create job titles for their assigned school
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Job title name
+                  example: "Senior Teacher"
+                  minLength: 1
+                  maxLength: 100
+                description:
+                  type: string
+                  description: Optional job title description
+                  example: "Experienced educator with advanced teaching credentials"
+                  maxLength: 500
+                school_id:
+                  type: string
+                  format: uuid
+                  description: |
+                    Optional school ID for school-specific job titles.
+                    - If provided: Creates a school-specific job title (accessible only by that school's admins)
+                    - If omitted: Creates a global job title (only Super Admin can create, accessible to all schools)
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                  nullable: true
+      responses:
+        "201":
+          description: Job title created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Job Title created successfully
+                  data:
+                    $ref: "#/components/schemas/JobTitle"
+        "400":
+          description: Validation error or duplicate job title name for the school
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Job Title with this name already exists for this school
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Only Super Admin can create global job titles
+        "500":
+          description: Server error
+    get:
+      summary: Get All Job Titles (Paginated)
+      description: |
+        Retrieve a paginated list of job titles with optional search functionality.
+        
+        **Visibility Rules:**
+        - Super Admin: Sees everything (global + all school-specific job titles)
+        - Admin/Sub Admin: Sees only global job titles + their school's job titles
+        
+        **Parameters:**
+        - `page`: Page number (default: 1)
+        - `limit`: Items per page (default: 10)
+        - `search`: Search by name or description
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of items per page
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search query to filter job titles by name or description
+      responses:
+        "200":
+          description: Job titles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Job Titles fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      jobTitles:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/JobTitleListItem"
+                      pagination:
+                        $ref: "#/components/schemas/Pagination"
+        "401":
+          description: Unauthorized - Missing or invalid authentication
+        "500":
+          description: Server error
+  /admin/job-titles/dropdown:
+    get:
+      summary: Get Job Titles for Dropdown
+      description: |
+        Retrieve all job titles formatted for dropdown/select components (no pagination).
+        
+        **Visibility Rules:**
+        - Super Admin: Gets global + all school-specific job titles
+        - Admin/Sub Admin: Gets only global job titles + their school's job titles
+        
+        **Use Cases:**
+        - User creation forms
+        - User profile edit forms
+        - Job title assignment interfaces
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Job titles for dropdown retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Job Titles fetched successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          description: Job title UUID
+                          example: "550e8400-e29b-41d4-a716-446655440000"
+                        name:
+                          type: string
+                          description: Job title name
+                          example: "Principal"
+                        school_id:
+                          type: string
+                          format: uuid
+                          nullable: true
+                          description: School ID (null for global job titles)
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+  /admin/job-titles/{id}:
+    get:
+      summary: Get Job Title by ID
+      description: |
+        Retrieve detailed information about a specific job title.
+        
+        **Permissions:**
+        - Super Admin: Can view any job title
+        - Admin/Sub Admin: Can only view global job titles or job titles belonging to their school
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Job title UUID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        "200":
+          description: Job title retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Job Title fetched successfully
+                  data:
+                    $ref: "#/components/schemas/JobTitle"
+        "403":
+          description: Access denied - Cannot access job title from another school
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: You can only view job titles for your school
+        "404":
+          description: Job title not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Job Title not found
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+    put:
+      summary: Update Job Title
+      description: |
+        Update an existing job title's name and/or description.
+        
+        **Permissions:**
+        - Super Admin: Can update any job title
+        - Admin/Sub Admin: Can only update job titles belonging to their school
+        
+        **Important Notes:**
+        - Global job titles (school_id = null) can only be updated by Super Admin
+        - Cannot change a job title's school association after creation
+        - Job title name must be unique within the school (or globally for global job titles)
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Job title UUID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Updated job title name
+                  example: "Lead Teacher"
+                  minLength: 1
+                  maxLength: 100
+                description:
+                  type: string
+                  description: Updated job title description
+                  example: "Senior educator with leadership responsibilities"
+                  maxLength: 500
+      responses:
+        "200":
+          description: Job title updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Job Title updated successfully
+                  data:
+                    $ref: "#/components/schemas/JobTitle"
+        "400":
+          description: Validation error or duplicate job title name
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Job Title with this name already exists for this school
+        "403":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: You can only update job titles for your school
+        "404":
+          description: Job title not found
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+    delete:
+      summary: Delete Job Title
+      description: |
+        Delete a job title by its ID.
+        
+        **Permissions:**
+        - Super Admin: Can delete any job title
+        - Admin/Sub Admin: Can only delete job titles belonging to their school
+        
+        **Important Notes:**
+        - Deletion is permanent
+        - Users with this job title will have their job_title_id set to null
+        - Global job titles (school_id = null) can only be deleted by Super Admin
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Job title UUID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        "200":
+          description: Job title deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Job Title deleted successfully
+        "403":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: You can only delete job titles for your school
+        "404":
+          description: Job title not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Job Title not found
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+
+components:
+  schemas:
+    JobTitle:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          description: Job title name
+          example: "Principal"
+        description:
+          type: string
+          nullable: true
+          description: Optional job title description
+          example: "School administrator responsible for overall operations"
+        school_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: School ID (null for global job titles)
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        school_name:
+          type: string
+          nullable: true
+          description: School name (null for global job titles)
+          example: "Springfield Elementary"
+        created_by:
+          type: integer
+          description: User ID who created this job title
+          example: 42
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-20T14:45:00Z"
+    JobTitleListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          example: "Vice Principal"
+        description:
+          type: string
+          nullable: true
+          example: "Deputy administrator"
+        school_id:
+          type: string
+          format: uuid
+          nullable: true
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        school_name:
+          type: string
+          nullable: true
+          example: "Springfield Elementary"
+    Pagination:
+      type: object
+      properties:
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 5
+        totalItems:
+          type: integer
+          example: 48
+        itemsPerPage:
+          type: integer
+          example: 10

@@ -1,0 +1,1826 @@
+paths:
+  /teacher/users:
+    get:
+      summary: Get all students of the teacher's school
+      description: Retrieves a paginated list of students belonging to the teacher's school with optional filtering by search and active status.
+      tags: [Teacher]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            example: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            example: 10
+          description: Number of records per page
+        - name: search
+          in: query
+          schema:
+            type: string
+            default: ""
+            example: "Sarah"
+          description: Search by first name, last name, or email
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+            default: true
+            example: true
+          description: Filter by active status (true or false)
+        - name: class_id
+          in: query
+          schema:
+            type: integer
+          description: Filter students by class (grade)
+        - name: section_id
+          in: query
+          schema:
+            type: integer
+          description: Filter students by section
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [name, points, level, recent]
+            default: name
+          description: Sort students list
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+          description: Sort direction
+      responses:
+        '200':
+          description: School students fetched successfully
+
+
+
+        '400':
+          description: Teacher must belong to a school
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /teacher/activities:
+    get:
+      summary: Get activities for the teacher's school
+      description: >
+        Retrieves a paginated list of student activities for the teacher's school.
+        You can optionally filter by status, category, or search term.
+      tags: [Teacher]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            example: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            example: 10
+          description: Number of records per page
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+            default: null
+            example: 1
+          description: Filter activities by category ID
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+            default: null
+            example: "pending"
+          description: Filter activities by status
+        - name: search
+          in: query
+          schema:
+            type: string
+            default: ""
+            example: "tree planting"
+          description: Search by activity title or description
+      responses:
+        '200':
+          description: Activities fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Activities fetched successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        title:
+                          type: string
+                          example: "Planted trees"
+                        status:
+                          type: string
+                          example: pending
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /teacher/analytics/dashboard:
+    get:
+      summary: Get teacher analytics dashboard
+      description: Returns dashboard cards, weekly trends, category breakdown, featured challenge, and engagement insights for teacher analytics screens.
+      tags: [Teacher]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: range
+          in: query
+          schema:
+            type: string
+            enum: [today, this_week, this_month, all_time]
+            default: this_week
+          description: Time range filter for dashboard cards and insights.
+      responses:
+        '200':
+          description: Teacher analytics fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Teacher analytics fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      range:
+                        type: string
+                        example: this_week
+                      cards:
+                        type: object
+                        properties:
+                          active_users:
+                            type: object
+                            properties:
+                              value:
+                                type: integer
+                                example: 247
+                              change_percent:
+                                type: integer
+                                example: 12
+                          activities:
+                            type: object
+                            properties:
+                              value:
+                                type: integer
+                                example: 892
+                              change_percent:
+                                type: integer
+                                example: 8
+                          points_awarded:
+                            type: object
+                            properties:
+                              value:
+                                type: integer
+                                example: 15400
+                              change_percent:
+                                type: integer
+                                example: 15
+                          completions:
+                            type: object
+                            properties:
+                              value:
+                                type: integer
+                                example: 45
+                              change_percent:
+                                type: integer
+                                example: 22
+                      weekly_trends:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            day:
+                              type: string
+                              example: Mon
+                            date:
+                              type: string
+                              example: "2026-02-23"
+                            users:
+                              type: integer
+                              example: 44
+                            activities:
+                              type: integer
+                              example: 120
+                      category_breakdown:
+                        type: object
+                        properties:
+                          total_activities:
+                            type: integer
+                            example: 892
+                          data:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                category_id:
+                                  type: integer
+                                  example: 1
+                                category_name:
+                                  type: string
+                                  example: Waste
+                                activities:
+                                  type: integer
+                                  example: 223
+                                percentage:
+                                  type: number
+                                  format: float
+                                  example: 25.0
+                      featured_challenge:
+                        type: object
+                        nullable: true
+                        properties:
+                          challenge_id:
+                            type: integer
+                            example: 9
+                          title:
+                            type: string
+                            example: Earth Day Special
+                          participants:
+                            type: integer
+                            example: 312
+                          completion_rate:
+                            type: number
+                            format: float
+                            example: 44
+                          avg_progress:
+                            type: number
+                            format: float
+                            example: 60
+                      engagement_insights:
+                        type: object
+                        properties:
+                          peak_activity_time:
+                            type: string
+                            nullable: true
+                            example: "3:00 PM - 5:00 PM"
+                          most_popular_activity:
+                            type: string
+                            nullable: true
+                            example: Recycling Plastic
+                          avg_streak_length:
+                            type: number
+                            format: float
+                            example: 8.6
+                          most_active_class:
+                            type: string
+                            nullable: true
+                            example: Grade 7 - Class A
+                          top_article:
+                            type: string
+                            nullable: true
+                            example: Climate Change Basics
+        '400':
+          description: Invalid range or teacher has no school
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /teacher/reported-activities:
+    get:
+      summary: Get reported feed activities for moderation
+      description: Returns reported activities for the teacher's school with moderation stats.
+      tags: [Teacher]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, reviewed, all]
+            default: pending
+          description: Report workflow status filter
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [all, activity, comment, post]
+            default: all
+          description: Content type filter (currently activity supported)
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high]
+          description: Priority filter derived from report count
+      responses:
+        '200':
+          description: Reported activities fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Reported activities fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      stats:
+                        type: object
+                        properties:
+                          ai_flagged:
+                            type: integer
+                            example: 0
+                          user_reported:
+                            type: integer
+                            example: 3
+                          high_priority:
+                            type: integer
+                            example: 2
+                          pending:
+                            type: integer
+                            example: 3
+                          reviewed:
+                            type: integer
+                            example: 0
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            type:
+                              type: string
+                              example: activity
+                            status:
+                              type: string
+                              example: pending
+                            priority:
+                              type: string
+                              example: low
+                            reports_count:
+                              type: integer
+                              example: 1
+                            activity_id:
+                              type: integer
+                              example: 14
+                            activity_title:
+                              type: string
+                              nullable: true
+                              example: Recycling claim
+                            activity_description:
+                              type: string
+                              nullable: true
+                              example: Suspicious recycling claim with no photo
+                            latest_report:
+                              type: object
+                              nullable: true
+                              properties:
+                                reason:
+                                  type: string
+                                  example: False information
+                                description:
+                                  type: string
+                                  nullable: true
+                                reported_at:
+                                  type: string
+                                  format: date-time
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 3
+                      totalPages:
+                        type: integer
+                        example: 1
+        '400':
+          description: Invalid query parameters
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /teacher/reported-activities/{activityId}/action:
+    post:
+      summary: Approve or remove a reported activity
+      description: Moderation action for reported activities in teacher school.
+      tags: [Teacher]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Reported activity ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - action
+              properties:
+                action:
+                  type: string
+                  enum: [approve, remove]
+                  example: approve
+                note:
+                  type: string
+                  maxLength: 1000
+                  example: "Teacher reviewed and approved."
+      responses:
+        '200':
+          description: Reported activity moderated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Reported activity approved successfully
+                  data:
+                    type: object
+                    properties:
+                      activity_id:
+                        type: integer
+                        example: 14
+                      action:
+                        type: string
+                        enum: [approve, remove]
+                        example: approve
+                      reports_cleared:
+                        type: integer
+                        example: 3
+        '400':
+          description: Invalid request payload
+        '401':
+          description: Unauthorized
+        '404':
+          description: Activity/report not found
+        '500':
+          description: Internal server error
+
+  /teacher/reported-activities/{activityId}:
+    get:
+      summary: Get reported activity detail
+      description: Returns one reported activity with full report entries for moderation review.
+      tags: [Teacher]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Reported activity ID
+      responses:
+        '200':
+          description: Reported activity detail fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Reported activity detail fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      activity:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 14
+                          title:
+                            type: string
+                            nullable: true
+                            example: Recycling claim
+                          description:
+                            type: string
+                            nullable: true
+                          category_name:
+                            type: string
+                            nullable: true
+                            example: Recycling
+                          status:
+                            type: string
+                            nullable: true
+                            example: approved
+                      moderation:
+                        type: object
+                        properties:
+                          reports_count:
+                            type: integer
+                            example: 3
+                          priority:
+                            type: string
+                            enum: [low, medium, high]
+                            example: high
+                          top_reason:
+                            type: string
+                            nullable: true
+                            example: False information
+                          latest_reported_at:
+                            type: string
+                            format: date-time
+                            nullable: true
+                      reports:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 9
+                            reason:
+                              type: string
+                              example: False information
+                            description:
+                              type: string
+                              nullable: true
+                            created_at:
+                              type: string
+                              format: date-time
+                            reporter:
+                              type: object
+                              properties:
+                                user_id:
+                                  type: integer
+                                  example: 22
+                                first_name:
+                                  type: string
+                                  nullable: true
+                                last_name:
+                                  type: string
+                                  nullable: true
+                                email:
+                                  type: string
+                                  nullable: true
+        '400':
+          description: Invalid activity ID
+        '401':
+          description: Unauthorized
+        '404':
+          description: Reported activity/report not found
+        '500':
+          description: Internal server error
+
+  /teacher/users/{id}:
+    get:
+      summary: Get student details by ID for teacher
+      description: Returns profile and key stats of a student belonging to the teacher's school.
+      tags: [Teacher]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Student user ID
+      responses:
+        '200':
+          description: Student fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Student fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 22
+                      name:
+                        type: string
+                        example: Olivia Brown
+                      email:
+                        type: string
+                        example: olivia.brown@school.edu
+                      is_active:
+                        type: boolean
+                        example: true
+                      avatar_url:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/uploads/avatar.png"
+                      joined_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                      level:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 5
+                          title:
+                            type: string
+                            example: Level 5
+                      grade:
+                        type: object
+                        properties:
+                          class_id:
+                            type: integer
+                            nullable: true
+                            example: 8
+                          class_name:
+                            type: string
+                            nullable: true
+                            example: 8th Grade
+                      section:
+                        type: object
+                        properties:
+                          section_id:
+                            type: integer
+                            nullable: true
+                            example: 2
+                          section_name:
+                            type: string
+                            nullable: true
+                            example: 8A
+                      class_section_label:
+                        type: string
+                        nullable: true
+                        example: 8th Grade • 8A
+                      stats:
+                        type: object
+                        properties:
+                          total_points:
+                            type: integer
+                            example: 2350
+                          activities_count:
+                            type: integer
+                            example: 95
+                          badges_count:
+                            type: integer
+                            example: 11
+                          current_streak_days:
+                            type: integer
+                            example: 0
+                          last_activity_at:
+                            type: string
+                            format: date-time
+                            nullable: true
+        '400':
+          description: Invalid student ID or teacher has no school
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only teacher role can access this endpoint
+        '404':
+          description: Student not found
+        '500':
+          description: Internal server error
+
+  /teacher/users/{id}/export:
+    get:
+      summary: Export individual student report for teacher
+      description: Exports one student (from the teacher's school) as a CSV file.
+      tags: [Teacher]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Student user ID
+      responses:
+        '200':
+          description: CSV file response
+          content:
+            text/csv:
+              schema:
+                type: string
+                example: "student_id,name,email,status,total_points"
+        '400':
+          description: Invalid student ID or invalid teacher context
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only teacher role can access this endpoint
+        '404':
+          description: Student not found
+        '500':
+          description: Internal server error
+
+  /teacher/users/{id}/stats:
+    get:
+      summary: Get detailed student stats by ID for teacher
+      description: Returns profile analytics for student detail screen (performance overview, weekly chart, breakdown, badges, and recent activities).
+      tags: [Teacher]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Student user ID
+      responses:
+        '200':
+          description: Student stats fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Student stats fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 22
+                      name:
+                        type: string
+                        example: Ava Taylor
+                      email:
+                        type: string
+                        example: ava.taylor@school.edu
+                      class_section_label:
+                        type: string
+                        nullable: true
+                        example: Class 10A - Section A
+                      level:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 4
+                          title:
+                            type: string
+                            example: Level 4
+                      stats:
+                        type: object
+                        properties:
+                          total_points:
+                            type: integer
+                            example: 2100
+                          activities_count:
+                            type: integer
+                            example: 82
+                          badges_count:
+                            type: integer
+                            example: 9
+                          current_streak_days:
+                            type: integer
+                            example: 0
+                      performance_overview:
+                        type: object
+                        properties:
+                          this_week_activities:
+                            type: integer
+                            example: 12
+                          this_month_activities:
+                            type: integer
+                            example: 45
+                          completed_challenges:
+                            type: integer
+                            example: 8
+                          articles_read:
+                            type: integer
+                            example: 15
+                          school_rank:
+                            type: object
+                            nullable: true
+                            properties:
+                              position:
+                                type: integer
+                                example: 12
+                              total_students:
+                                type: integer
+                                example: 247
+                      weekly_activity:
+                        type: object
+                        properties:
+                          total_points:
+                            type: integer
+                            example: 575
+                          points_by_day:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                day:
+                                  type: string
+                                  example: Mon
+                                date:
+                                  type: string
+                                  format: date
+                                  example: "2026-02-16"
+                                points:
+                                  type: integer
+                                  example: 80
+                      activity_breakdown:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            category_id:
+                              type: integer
+                              example: 1
+                            category_name:
+                              type: string
+                              example: Waste Reduction
+                            activities_count:
+                              type: integer
+                              example: 28
+                            points:
+                              type: integer
+                              example: 840
+                      recent_badges:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 3
+                            name:
+                              type: string
+                              example: Recycling Rookie
+                            icon_url:
+                              type: string
+                              nullable: true
+                              example: https://api.thrive.com/badges/recycle.png
+                            earned_at:
+                              type: string
+                              format: date-time
+                      recent_activities:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 151
+                            title:
+                              type: string
+                              example: Recycled 15 plastic bottles
+                            category_name:
+                              type: string
+                              nullable: true
+                              example: Waste Reduction
+                            status:
+                              type: string
+                              example: approved
+                            points:
+                              type: integer
+                              example: 30
+                            created_at:
+                              type: string
+                              format: date-time
+        '400':
+          description: Invalid student ID or teacher has no school
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only teacher role can access this endpoint
+        '404':
+          description: Student not found
+        '500':
+          description: Internal server error
+
+  /teacher/users/{id}/flag:
+    post:
+      summary: Flag a student by ID for teacher review
+      description: Creates or updates a teacher flag for a student in the same school.
+      tags: [Teacher]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Student user ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  enum:
+                    - Suspicious activity
+                    - Inappropriate content
+                    - Gaming the system
+                  example: Suspicious activity
+                note:
+                  type: string
+                  nullable: true
+                  example: Unusual rapid point growth in one day.
+      responses:
+        '201':
+          description: Student flagged successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Student flagged successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 14
+                      student_user_id:
+                        type: integer
+                        example: 22
+                      teacher_user_id:
+                        type: integer
+                        example: 7
+                      school_id:
+                        type: integer
+                        example: 1
+                      reason:
+                        type: string
+                        example: Suspicious activity
+                      note:
+                        type: string
+                        nullable: true
+                        example: Unusual rapid point growth in one day.
+                      is_new:
+                        type: boolean
+                        example: true
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+        '200':
+          description: Student flag updated successfully
+        '400':
+          description: Invalid request data
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only teacher role can access this endpoint
+        '404':
+          description: Student not found
+        '500':
+          description: Internal server error
+
+  /teacher/users/export:
+    get:
+      summary: Export teacher students report
+      description: Export students of teacher school as CSV using one of three modes.
+      tags: [Teacher]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: mode
+          in: query
+          schema:
+            type: string
+            enum: [individual, class_summary, full_csv]
+            default: full_csv
+          description: Export format mode
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Filter students by search keyword
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
+        - name: class_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by class ID
+        - name: section_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by section ID
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [name, points, level, recent]
+            default: name
+          description: Sort students in export
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+          description: Sort order
+      responses:
+        '200':
+          description: CSV file response
+          content:
+            text/csv:
+              schema:
+                type: string
+                example: "student_id,name,email,status,total_points"
+        '400':
+          description: Invalid export mode or invalid teacher context
+        '401':
+          description: Unauthorized
+        '403':
+          description: Only teacher role can access this endpoint
+        '500':
+          description: Internal server error
+
+  /teacher/activities/{activityId}/review:
+    post:
+     summary: Approve or reject a student activity
+     description: >
+       Review a pending activity by either approving (award points) or rejecting (provide reason).
+       Only pending activities can be reviewed.
+     tags: [Teacher]
+     security:
+       - bearerAuth: []
+       - cookieAuth: []
+     parameters:
+       - name: activityId
+         in: path
+         required: true
+         schema:
+           type: integer
+         description: Activity ID to review
+     requestBody:
+       required: true
+       content:
+
+
+         multipart/form-data:
+
+           schema:
+             type: object
+             required:
+               - status
+             properties:
+
+                status:
+                  type: string
+                  enum: [approved, rejected]
+                  description: Use `approved` to award points, or `rejected` with a rejection reason.
+                  example: approved
+                points:
+                  type: integer
+                  description: Required when `status=approved`.
+                  example: 10
+                rejection_reason:
+                  type: string
+                  description: Required when `status=rejected`.
+                  example: "Incomplete work"
+
+
+     responses:
+       '200':
+         description: Activity reviewed successfully
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 success:
+                   type: boolean
+                   example: true
+                 message:
+                   type: string
+                   example: "Activity approved successfully"
+                 data:
+                   type: object
+                   properties:
+                     points:
+                       type: integer
+                       example: 10
+       '400':
+         description: Bad request - missing points or rejection reason, or activity not pending
+       '401':
+         description: Unauthorized
+       '404':
+         description: Activity not found
+       '500':
+         description: Internal server error
+
+  /teacher/articles/upload-editor-image:
+    post:
+      summary: Upload image for rich text editor
+      description: Upload an image to be used in article content via rich text editor. Returns the image URL for embedding.
+      tags: [Teacher - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Editor image file to upload
+
+      responses:
+        '200':
+          description: Image uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Image uploaded successfully
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        example: "https://api.thrive.com/articles/editor-image-123456.png"
+        '400':
+          description: Invalid file type or file too large
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /teacher/articles/upload-thumbnail:
+    post:
+      summary: Upload article thumbnail
+      description: Upload a thumbnail image for an article.
+      tags: [Teacher - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - thumbnail
+              properties:
+                thumbnail:
+                  type: string
+                  format: binary
+                  description: Thumbnail image file to upload
+      responses:
+        '200':
+          description: Thumbnail uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Thumbnail uploaded successfully
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        example: "https://api.thrive.com/articles/thumbnail-123456.png"
+        '400':
+          description: Invalid file type or file too large
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /teacher/articles:
+    post:
+      summary: Create a new article
+      description: Create a new article with optional cover image and thumbnail. Teachers can create articles for their school or global articles.
+      tags: [Teacher - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+                - category_id
+              properties:
+                title:
+                  type: string
+                  example: "Sustainability at School"
+                content:
+                  type: string
+                  example: "Tips and practices for sustainable living at school."
+                category_id:
+                  type: integer
+                  example: 1
+                points:
+                  type: integer
+                  example: 10
+                school_id:
+                  type: integer
+                  nullable: true
+                  example: 1
+                thumbnail_image:
+                  type: string
+                  description: URL of uploaded thumbnail image
+                  example: "https://api.thrive.com/articles/thumbnail-123456.png"
+                cover_image:
+                  type: string
+                  format: binary
+                  description: Optional cover image for the article
+      responses:
+        '201':
+          description: Article created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article created successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 12
+                      title:
+                        type: string
+                        example: "Sustainability at School"
+                      content:
+                        type: string
+                        example: "Tips and practices for sustainable living at school."
+                      cover_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/article-12.png"
+                      thumbnail_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/thumbnail-123456.png"
+                      points:
+                        type: integer
+                        example: 10
+                      category_id:
+                        type: integer
+                        example: 1
+                      category_name:
+                        type: string
+                        nullable: true
+                        example: "Environment"
+                      school_id:
+                        type: integer
+                        nullable: true
+                        example: 1
+                      author_id:
+                        type: integer
+                        example: 5
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2026-02-09T12:00:00Z"
+        '400':
+          description: Validation error
+        '403':
+          description: You don't have permission to create articles
+        '500':
+          description: Internal server error
+    get:
+      summary: Get all articles
+      description: Retrieves a paginated list of articles. Teachers can see articles from their school and global articles.
+      tags: [Teacher - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            example: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            example: 10
+          description: Items per page
+        - name: school_id
+          in: query
+          schema:
+            type: integer
+            default: null
+            example: 1
+          description: Filter articles by school ID
+        - name: search
+          in: query
+          schema:
+            type: string
+            default: ""
+            example: "Sustainability"
+          description: Search by article title or content
+      responses:
+        '200':
+          description: Articles fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Articles fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 12
+                            title:
+                              type: string
+                              example: "Sustainability at School"
+                            content:
+                              type: string
+                              example: "Tips and practices for sustainable living at school."
+                            cover_image:
+                              type: string
+                              nullable: true
+                              example: "https://api.thrive.com/articles/article-12.png"
+                            thumbnail_image:
+                              type: string
+                              nullable: true
+                              example: "https://api.thrive.com/articles/thumbnail-123456.png"
+                            points:
+                              type: integer
+                              example: 10
+                            category_id:
+                              type: integer
+                              example: 1
+                            category_name:
+                              type: string
+                              nullable: true
+                              example: "Environment"
+                            school_id:
+                              type: integer
+                              nullable: true
+                              example: 1
+                            author_id:
+                              type: integer
+                              example: 5
+                            author_email:
+                              type: string
+                              nullable: true
+                              example: "teacher@school.com"
+                            author_first_name:
+                              type: string
+                              nullable: true
+                              example: "Ayesha"
+                            author_last_name:
+                              type: string
+                              nullable: true
+                              example: "Khan"
+                            school_name:
+                              type: string
+                              nullable: true
+                              example: "Green Valley School"
+                            views_count:
+                              type: integer
+                              example: 25
+                            bookmarks_count:
+                              type: integer
+                              example: 5
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2026-02-09T12:00:00Z"
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalCount:
+                        type: integer
+                        example: 50
+                      totalPages:
+                        type: integer
+                        example: 5
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /teacher/articles/{id}:
+    get:
+      summary: Get article by ID
+      description: Retrieves a single article by ID with full details including author and school information.
+      tags: [Teacher - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Article ID
+      responses:
+        '200':
+          description: Article fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article fetched successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 12
+                      title:
+                        type: string
+                        example: "Sustainability at School"
+                      content:
+                        type: string
+                        example: "Tips and practices for sustainable living at school."
+                      cover_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/article-12.png"
+                      thumbnail_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/thumbnail-123456.png"
+                      points:
+                        type: integer
+                        example: 10
+                      category_id:
+                        type: integer
+                        example: 1
+                      category_name:
+                        type: string
+                        nullable: true
+                        example: "Environment"
+                      school_id:
+                        type: integer
+                        nullable: true
+                        example: 1
+                      author_id:
+                        type: integer
+                        example: 5
+                      author_email:
+                        type: string
+                        nullable: true
+                        example: "teacher@school.com"
+                      author_first_name:
+                        type: string
+                        nullable: true
+                        example: "Ayesha"
+                      author_last_name:
+                        type: string
+                        nullable: true
+                        example: "Khan"
+                      school_name:
+                        type: string
+                        nullable: true
+                        example: "Green Valley School"
+                      views_count:
+                        type: integer
+                        example: 25
+                      bookmarks_count:
+                        type: integer
+                        example: 5
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2026-02-09T12:00:00Z"
+        '404':
+          description: Article not found
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+    put:
+      summary: Update article
+      description: Update an existing article. Teachers can only update their own articles.
+      tags: [Teacher - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Article ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Updated Sustainability Guide"
+                content:
+                  type: string
+                  example: "Updated tips and practices for sustainable living at school."
+                category_id:
+                  type: integer
+                  example: 1
+                points:
+                  type: integer
+                  example: 15
+                school_id:
+                  type: integer
+                  nullable: true
+                  example: 1
+                thumbnail_image:
+                  type: string
+                  description: URL of uploaded thumbnail image
+                  example: "https://api.thrive.com/articles/thumbnail-123456.png"
+                cover_image:
+                  type: string
+                  format: binary
+                  description: Optional cover image for the article
+      responses:
+        '200':
+          description: Article updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article updated successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 12
+                      title:
+                        type: string
+                        example: "Updated Sustainability Guide"
+                      content:
+                        type: string
+                        example: "Updated tips and practices for sustainable living at school."
+                      cover_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/article-12.png"
+                      thumbnail_image:
+                        type: string
+                        nullable: true
+                        example: "https://api.thrive.com/articles/thumbnail-123456.png"
+                      points:
+                        type: integer
+                        example: 15
+                      category_id:
+                        type: integer
+                        example: 1
+                      category_name:
+                        type: string
+                        nullable: true
+                        example: "Environment"
+                      school_id:
+                        type: integer
+                        nullable: true
+                        example: 1
+                      author_id:
+                        type: integer
+                        example: 5
+        '400':
+          description: Validation error
+        '403':
+          description: You don't have permission to update this article
+        '404':
+          description: Article not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete article
+      description: Delete an article by ID. Teachers can only delete their own articles.
+      tags: [Teacher - Articles]
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Article ID
+      responses:
+        '200':
+          description: Article deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Article deleted successfully
+        '403':
+          description: You don't have permission to delete this article
+        '404':
+          description: Article not found
+        '500':
+          description: Internal server error
+
