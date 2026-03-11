@@ -16,8 +16,10 @@ RUN npm ci
 # Copy the rest of the app files
 COPY . .
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+# Create non-root user for security and set permissions on writable directories
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001 \
+    && mkdir -p /app/logs /app/public /app/uploads \
+    && chown -R nodejs:nodejs /app
 USER nodejs
 
 # Expose the port

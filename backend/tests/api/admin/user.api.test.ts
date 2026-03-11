@@ -56,6 +56,38 @@ describe("Admin User API", () => {
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
+
+    test("400 - validation error (negative page)", async () => {
+      const res = await request(app).get(url).query({ page: -1, limit: 10 });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(userService.getAllUsers).not.toHaveBeenCalled();
+    });
+
+    test("400 - validation error (non-numeric limit)", async () => {
+      const res = await request(app).get(url).query({ page: 1, limit: "abc" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(userService.getAllUsers).not.toHaveBeenCalled();
+    });
+
+    test("400 - validation error (limit exceeds maximum)", async () => {
+      const res = await request(app).get(url).query({ page: 1, limit: 200 });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(userService.getAllUsers).not.toHaveBeenCalled();
+    });
+
+    test("400 - validation error (invalid is_active value)", async () => {
+      const res = await request(app).get(url).query({ is_active: "maybe" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(userService.getAllUsers).not.toHaveBeenCalled();
+    });
   });
 
   // ─── POST /api/v1/admin/users ────────────────────────
@@ -171,6 +203,30 @@ describe("Admin User API", () => {
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
+
+    test("400 - validation error (non-numeric id)", async () => {
+      const res = await request(app).get("/api/v1/admin/users/abc");
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(userService.getUserById).not.toHaveBeenCalled();
+    });
+
+    test("400 - validation error (negative id)", async () => {
+      const res = await request(app).get("/api/v1/admin/users/-1");
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(userService.getUserById).not.toHaveBeenCalled();
+    });
+
+    test("400 - validation error (zero id)", async () => {
+      const res = await request(app).get("/api/v1/admin/users/0");
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(userService.getUserById).not.toHaveBeenCalled();
+    });
   });
 
   // ─── PATCH /api/v1/admin/users/:id ───────────────────
@@ -207,6 +263,19 @@ describe("Admin User API", () => {
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
     });
+
+    test("400 - validation error (non-numeric id)", async () => {
+      const res = await request(app)
+        .patch("/api/v1/admin/users/abc")
+        .field("first_name", "Updated")
+        .field("last_name", "User")
+        .field("email", "updated@test.com")
+        .field("role", "teacher");
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(userService.updateUser).not.toHaveBeenCalled();
+    });
   });
 
   // ─── DELETE /api/v1/admin/users/:id ──────────────────
@@ -241,6 +310,14 @@ describe("Admin User API", () => {
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
+    });
+
+    test("400 - validation error (non-numeric id)", async () => {
+      const res = await request(app).delete("/api/v1/admin/users/abc");
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(userService.deleteUser).not.toHaveBeenCalled();
     });
   });
 });
