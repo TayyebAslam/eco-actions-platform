@@ -54,6 +54,9 @@ const nextConfig: NextConfig = {
 
   // Security headers
   async headers() {
+    const isDev = process.env.NODE_ENV !== "production";
+    const localhostSrc = isDev ? " http://localhost:* https://localhost:*" : "";
+
     return [
       {
         source: "/:path*",
@@ -93,9 +96,9 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.gstatic.com", // Next.js requires these; gstatic for Firebase SW
               "style-src 'self' 'unsafe-inline'", // Tailwind/UI libraries need inline styles
-              "img-src 'self' data: https: http: http://localhost:* https://localhost:* blob:",
+              `img-src 'self' data: https: http:${localhostSrc} blob:`,
               "font-src 'self' data:",
-              "connect-src 'self' ws: wss: http://localhost:* https://localhost:* https://fcm.googleapis.com https://fcmregistrations.googleapis.com https://firebaseinstallations.googleapis.com",
+              `connect-src 'self' ws: wss:${localhostSrc} https://fcm.googleapis.com https://fcmregistrations.googleapis.com https://firebaseinstallations.googleapis.com`,
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
